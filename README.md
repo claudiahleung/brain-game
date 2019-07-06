@@ -1,1 +1,1 @@
-# brain-pinball
+# brain-game
