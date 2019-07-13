@@ -47,8 +47,11 @@ const p5BrainGame = new p5(sketch => {
       return this.y + config.floorHeight < 0;
     }
 
-    collisionDetection() {
+    collisionHandling() {
+      if (player.y + player.radius > this.y &&
+        player.y - player.radius < this.y) {
 
+      }
     }
   }
 
@@ -73,9 +76,9 @@ const p5BrainGame = new p5(sketch => {
   };
 
   sketch.keyPressed = () => {
-    if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
+    if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
         player.vx = config.horizontalSpeed;
-    }  else if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
+    }  else if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
         player.vx = -config.horizontalSpeed;
     }
   }
