@@ -1,3 +1,4 @@
+/* eslint-disable */
 const p5BrainGame = new p5(sketch => {
   let gameConfig = {
     gapDist: NaN,
@@ -17,7 +18,7 @@ const p5BrainGame = new p5(sketch => {
     gapsX: NaN,
     gapsY: NaN,
   };
-  
+
   sketch.setup = () => {
     sketch.createCanvas(300, 600);
     gameState.playerRadius = 2 * gameConfig.UNIT
@@ -30,10 +31,18 @@ const p5BrainGame = new p5(sketch => {
     sketch.update();
   };
 
+  sketch.keyPressed = () => {
+    if (sketch.keyCode === sketch.LEFT_ARROW) {
+      console.log(" left arrow ================");
+    } else if (sketch.keyCode === sketch.RIGHT_ARROW) {
+      console.log(" right arrow ================");
+    }
+  }
+
   sketch.update = () => {
-    
+
   };
-  
+
   sketch.drawScene = () => {
     sketch.background(220);
     sketch.ellipse(gameState.playerX, gameState.playerY,
