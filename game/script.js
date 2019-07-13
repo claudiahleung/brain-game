@@ -1,51 +1,69 @@
 /* eslint-disable */
 const p5BrainGame = new p5(sketch => {
-  const UNIT = 10;
-  let gameConfig = {
-    floorDist: 15 * UNIT,
+  const UNIT = 5;
+  const config = {
+    floorDist: 25 * UNIT,
     gapWidth: 8 * UNIT,
     floorHeight: 3 * UNIT,
     floorSpeed: UNIT / 10,
     bgColor: 220,
+    horizontalSpeed: UNIT / 2,
+    verticalSpeed: UNIT / 10,
   };
 
-  let gameState = {
+  const state = {
     player: {
       x: NaN,
       y: NaN,
-      radius: NaN
+      radius: NaN,
+      speedX: 0,
+      speedY: config.verticalSpeed,
     },
     floors: [],
   };
 
+  const player = state.player;
+
   class Floor {
     constructor() {
-      this.x = sketch.random(0, sketch.width - gameConfig.gapWidth);
+      this.x = sketch.random(0, sketch.width - config.gapWidth);
       this.y = sketch.height;
     }
 
     update() {
-      this.y -= gameConfig.floorSpeed;
+      this.y -= config.floorSpeed;
     }
 
     draw() {
+      sketch.noStroke();
       sketch.fill(0);
-      sketch.rect(0, this.y, sketch.width, gameConfig.floorHeight);
-      sketch.fill(gameConfig.bgColor);
-      sketch.rect(this.x, this.y, gameConfig.gapWidth, gameConfig.floorHeight);
+      sketch.rect(0, this.y, sketch.width, config.floorHeight);
+      sketch.fill(config.bgColor);
+      sketch.stroke(config.bgColor);
+      sketch.rect(this.x, this.y, config.gapWidth, config.floorHeight);
+    }
+
+    isOutOfBounds() {
+      return this.y + config.floorHeight < 0;
+    }
+
+    collisionDetection() {
+
     }
   }
 
   sketch.reset = () => {
-    gameState.floors = [new Floor()];
-    gameState.player.x = sketch.width / 2;
-    gameState.player.y = sketch.height /2;
-  }
+    state.floors = [new Floor()];
+    state.player.x = sketch.width / 2;
+    state.player.y = sketch.height /2;
+  };
+
 
   sketch.setup = () => {
-    sketch.createCanvas(300, 600);
-    sketch.noStroke();
-    gameState.player.radius = 2 * UNIT;
+    sketch.createCanvas(500, 500);
+    player.radius = 2 * UNIT
+    player.x = sketch.width / 2;
+    player.y = sketch.height / 2;
     sketch.reset();
   }
 
@@ -55,47 +73,56 @@ const p5BrainGame = new p5(sketch => {
   };
 
   sketch.keyPressed = () => {
-    if (sketch.keyCode === sketch.LEFT_ARROW) {
-      console.log(" left arrow ================", gameState.player.x);
-      sketch.moveLeft();
-      console.log(" left arrow done ================", gameState.player.x);
-    } else if (sketch.keyCode === sketch.RIGHT_ARROW) {
-      console.log(" right arrow ================", gameState.player.x);
-      sketch.moveRight();
-      console.log(" right arrow done ================", gameState.player.x);
+    if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
+        player.speedX = config.horizontalSpeed;
+    }  else if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
+        player.speedX = -config.horizontalSpeed;
     }
   }
 
+  sketch.keyReleased = () => {
+    player.speedX = 0;
+  }
+
   sketch.moveLeft = () => {
-    gameState.player.x -= UNIT / 5;
+    state.player.x -= UNIT / 5;
   }
 
   sketch.moveRight = () => {
-    gameState.player.x += UNIT / 5;
+    state.player.x += UNIT / 5;
   }
 
   sketch.update = () => {
-    gameState.floors.forEach(floor => floor.update());
-    const lastFloor = gameState.floors[gameState.floors.length - 1];
+    state.floors.forEach(floor => floor.update());
+    state.floors.filter(floor => !floor.isOutOfBounds());
+    const lastFloor = state.floors[state.floors.length - 1];
 
-    if (lastFloor.y < sketch.height - gameConfig.floorDist) {
-      gameState.floors.push(new Floor());
+    if (lastFloor.y < sketch.height - config.floorDist) {
+      state.floors.push(new Floor());
+    }
+
+    player.x += player.speedX;
+
+    const playerBottomEdge = player.y + player.radius;
+    if (playerBottomEdge < sketch.height){
+      player.y += player.speedY;
     }
   };
 
   sketch.drawScene = () => {
-    sketch.background(gameConfig.bgColor);
+    sketch.background(config.bgColor);
     sketch.drawFloors();
     sketch.drawPlayer();
   };
 
   sketch.drawFloors = () => {
-    gameState.floors.forEach(floor => floor.draw());
+    state.floors.forEach(floor => floor.draw());
   }
 
   sketch.drawPlayer = () => {
+    sketch.noStroke();
     sketch.fill(0);
-    sketch.ellipse(gameState.player.x, gameState.player.y,
-      2 * gameState.player.radius);
-  }
+    sketch.ellipse(player.x, player.y,
+      2 * player.radius);
+  };
 }, 'brain-game-div');
