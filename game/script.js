@@ -10,11 +10,9 @@ const p5BrainGame = new p5(sketch => {
     player: {
       x: NaN,
       y: NaN,
-      radius: NaN
+      radius: NaN,
+      speedX: 0,
     },
-    // player.x: NaN,
-    // player.y: NaN,
-    // player.radius: NaN,
     gapsX: NaN,
     gapsY: NaN,
   };
@@ -32,27 +30,24 @@ const p5BrainGame = new p5(sketch => {
   };
 
   sketch.keyPressed = () => {
-    if (sketch.keyCode === sketch.LEFT_ARROW) {
-      console.log(" left arrow ================", gameState.player.x);
-      sketch.moveLeft();
-      console.log(" left arrow done ================", gameState.player.x);
-    } else if (sketch.keyCode === sketch.RIGHT_ARROW) {
-      console.log(" right arrow ================", gameState.player.x);
-      sketch.moveRight();
-      console.log(" right arrow done ================", gameState.player.x);
+    if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
+        console.log(" left arrow ================", gameState.player.speedX);
+        gameState.player.speedX = -0.5 * gameConfig.UNIT;
+        console.log(" left arrow done ================", gameState.player.speedX);
+    }  else if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
+        console.log(" right arrow ================", gameState.player.speedX);
+        gameState.player.speedX = 0.5 * gameConfig.UNIT;
+        console.log(" right arrow done ================", gameState.player.speedX);
     }
   }
 
-  sketch.moveLeft = () => {
-    gameState.player.x -= gameConfig.UNIT / 5;
-  }
-
-  sketch.moveRight = () => {
-    gameState.player.x += gameConfig.UNIT / 5;
+  sketch.keyReleased = () => {
+    gameState.player.speedX = 0;
+    console.log("key released==========");
   }
 
   sketch.update = () => {
-
+    gameState.player.x += gameState.player.speedX;
   };
 
   sketch.drawScene = () => {
