@@ -1,4 +1,4 @@
-  const p5BrainGame = new p5(sketch => {
+const p5BrainGame = new p5(sketch => {
   let gameConfig = {
     gapDist: NaN,
     gapWidth: NaN,
@@ -18,29 +18,25 @@
     gapsY: NaN,
   };
   
-  sketch.setup = () =>   sketch.createCanvas(300, 600);
+  sketch.setup = () => {
+    sketch.createCanvas(300, 600);
     gameState.playerRadius = 2 * gameConfig.UNIT
     gameState.playerX = sketch.width / 2;
     gameState.playerY = sketch.height /2;
   }
 
   sketch.draw = () => {
-    sketch.background(220);
-    sketch.ellipse(gameState.playerX, gameState.playerY,
-      2 * gameState.playerRadius);
+    sketch.drawScene();
+    skecth.update();
+  };
 
   sketch.update = () => {
     
-  }te.playerY,
-      2 * gameState.playerRadius);
-  }
-  
-  sketch.drawScene() => {
-    
   };
   
-
-  sketch.  
+  sketch.drawScene = () => {
+    sketch.background(220);
+    sketch.ellipse(gameState.playerX, gameState.playerY,
+      2 * gameState.playerRadius);
+  };
 }, 'game-div');
-
-;
