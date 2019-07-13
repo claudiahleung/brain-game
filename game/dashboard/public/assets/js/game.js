@@ -16,8 +16,8 @@ const p5BrainGame = new p5(sketch => {
       x: NaN,
       y: NaN,
       radius: NaN,
-      speedX: 0,
-      speedY: config.verticalSpeed,
+      vx: 0,
+      vy: config.verticalSpeed,
     },
     floors: [],
   };
@@ -35,7 +35,7 @@ const p5BrainGame = new p5(sketch => {
     }
 
     draw() {
-      sketch.noStroke();
+      sketch.stroke(config.bgColor);
       sketch.fill(0);
       sketch.rect(0, this.y, sketch.width, config.floorHeight);
       sketch.fill(config.bgColor);
@@ -74,14 +74,14 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.keyPressed = () => {
     if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
-        player.speedX = config.horizontalSpeed;
+        player.vx = config.horizontalSpeed;
     }  else if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
-        player.speedX = -config.horizontalSpeed;
+        player.vx = -config.horizontalSpeed;
     }
   }
 
   sketch.keyReleased = () => {
-    player.speedX = 0;
+    player.vx = 0;
   }
 
   sketch.moveLeft = () => {
@@ -101,11 +101,11 @@ const p5BrainGame = new p5(sketch => {
       state.floors.push(new Floor());
     }
 
-    player.x += player.speedX;
+    player.x += player.vx;
 
     const playerBottomEdge = player.y + player.radius;
     if (playerBottomEdge < sketch.height){
-      player.y += player.speedY;
+      player.y += player.vy;
     }
   };
 
