@@ -73,9 +73,9 @@ const p5BrainGame = new p5(sketch => {
   };
 
   sketch.keyPressed = () => {
-    if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
+    if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
         player.speedX = config.horizontalSpeed;
-    }  else if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
+    }  else if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
         player.speedX = -config.horizontalSpeed;
     }
   }
