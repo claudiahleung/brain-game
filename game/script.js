@@ -12,18 +12,18 @@ const p5BrainGame = new p5(sketch => {
       y: NaN,
       radius: NaN
     },
-    playerX: NaN,
-    playerY: NaN,
-    playerRadius: NaN,
+    // player.x: NaN,
+    // player.y: NaN,
+    // player.radius: NaN,
     gapsX: NaN,
     gapsY: NaN,
   };
 
   sketch.setup = () => {
     sketch.createCanvas(300, 600);
-    gameState.playerRadius = 2 * gameConfig.UNIT
-    gameState.playerX = sketch.width / 2;
-    gameState.playerY = sketch.height /2;
+    gameState.player.radius = 2 * gameConfig.UNIT
+    gameState.player.x = sketch.width / 2;
+    gameState.player.y = sketch.height /2;
   }
 
   sketch.draw = () => {
@@ -33,10 +33,22 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.keyPressed = () => {
     if (sketch.keyCode === sketch.LEFT_ARROW) {
-      console.log(" left arrow ================");
+      console.log(" left arrow ================", gameState.player.x);
+      sketch.moveLeft();
+      console.log(" left arrow done ================", gameState.player.x);
     } else if (sketch.keyCode === sketch.RIGHT_ARROW) {
-      console.log(" right arrow ================");
+      console.log(" right arrow ================", gameState.player.x);
+      sketch.moveRight();
+      console.log(" right arrow done ================", gameState.player.x);
     }
+  }
+
+  sketch.moveLeft = () => {
+    gameState.player.x -= gameConfig.UNIT / 5;
+  }
+
+  sketch.moveRight = () => {
+    gameState.player.x += gameConfig.UNIT / 5;
   }
 
   sketch.update = () => {
@@ -45,7 +57,7 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.drawScene = () => {
     sketch.background(220);
-    sketch.ellipse(gameState.playerX, gameState.playerY,
-      2 * gameState.playerRadius);
+    sketch.ellipse(gameState.player.x, gameState.player.y,
+      2 * gameState.player.radius);
   };
 }, 'brain-game-div');
