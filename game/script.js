@@ -1,10 +1,12 @@
 /* eslint-disable */
-
 const p5BrainGame = new p5(sketch => {
-  const UNIT = 10;
+  const UNIT = 5;
   const config = {
-    gapDist: NaN,
-    gapWidth: NaN,
+    floorDist: 25 * UNIT,
+    gapWidth: 8 * UNIT,
+    floorHeight: 3 * UNIT,
+    floorSpeed: UNIT / 10,
+    bgColor: 220,
     horizontalSpeed: UNIT / 2,
     verticalSpeed: UNIT / 10,
   };
@@ -17,17 +19,52 @@ const p5BrainGame = new p5(sketch => {
       speedX: 0,
       speedY: config.verticalSpeed,
     },
-    gapsX: NaN,
-    gapsY: NaN,
+    floors: [],
   };
 
   const player = state.player;
 
+  class Floor {
+    constructor() {
+      this.x = sketch.random(0, sketch.width - config.gapWidth);
+      this.y = sketch.height;
+    }
+
+    update() {
+      this.y -= config.floorSpeed;
+    }
+
+    draw() {
+      sketch.noStroke();
+      sketch.fill(0);
+      sketch.rect(0, this.y, sketch.width, config.floorHeight);
+      sketch.fill(config.bgColor);
+      sketch.stroke(config.bgColor);
+      sketch.rect(this.x, this.y, config.gapWidth, config.floorHeight);
+    }
+
+    isOutOfBounds() {
+      return this.y + config.floorHeight < 0;
+    }
+
+    collisionDetection() {
+
+    }
+  }
+
+  sketch.reset = () => {
+    state.floors = [new Floor()];
+    state.player.x = sketch.width / 2;
+    state.player.y = sketch.height /2;
+  };
+
+
   sketch.setup = () => {
-    sketch.createCanvas(300, 600);
+    sketch.createCanvas(500, 500);
     player.radius = 2 * UNIT
     player.x = sketch.width / 2;
     player.y = sketch.height / 2;
+    sketch.reset();
   }
 
   sketch.draw = () => {
@@ -37,32 +74,54 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.keyPressed = () => {
     if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
-        console.log(" left arrow ================", player.speedX);
         player.speedX = config.horizontalSpeed;
-        console.log(" left arrow done ================", player.speedX);
     }  else if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
-        console.log(" right arrow ================", player.speedX);
-        player.speedX = -1 * config.horizontalSpeed;
-        console.log(" right arrow done ================", player.speedX);
+        player.speedX = -config.horizontalSpeed;
     }
   }
 
   sketch.keyReleased = () => {
     player.speedX = 0;
-    console.log("key released==========");
+  }
+
+  sketch.moveLeft = () => {
+    state.player.x -= UNIT / 5;
+  }
+
+  sketch.moveRight = () => {
+    state.player.x += UNIT / 5;
   }
 
   sketch.update = () => {
+    state.floors.forEach(floor => floor.update());
+    state.floors.filter(floor => !floor.isOutOfBounds());
+    const lastFloor = state.floors[state.floors.length - 1];
+
+    if (lastFloor.y < sketch.height - config.floorDist) {
+      state.floors.push(new Floor());
+    }
+
     player.x += player.speedX;
 
     const playerBottomEdge = player.y + player.radius;
-    if (playerBottomEdge !== sketch.height){
+    if (playerBottomEdge < sketch.height){
       player.y += player.speedY;
     }
   };
 
   sketch.drawScene = () => {
-    sketch.background(220);
+    sketch.background(config.bgColor);
+    sketch.drawFloors();
+    sketch.drawPlayer();
+  };
+
+  sketch.drawFloors = () => {
+    state.floors.forEach(floor => floor.draw());
+  }
+
+  sketch.drawPlayer = () => {
+    sketch.noStroke();
+    sketch.fill(0);
     sketch.ellipse(player.x, player.y,
       2 * player.radius);
   };
