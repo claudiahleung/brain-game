@@ -103,15 +103,18 @@
                     <center>
                     <div class="row">
                       <div class="col">
-                        <i class="fas fa-arrow-circle-left big-arrow button-off" id="think-Left"></i>
+                        <i class="fas fa-arrow-circle-left big-arrow button-off" id="think-L"></i>
                       </div>
                       <div class="col">
-                        <i class="fas fa-arrow-circle-right big-arrow button-off" id="think-Right"></i>
+                        <i class="fas fa-arrow-circle-up big-arrow button-off" id="think-F"></i>
+                      </div>
+                      <div class="col">
+                        <i class="fas fa-arrow-circle-right big-arrow button-off" id="think-R"></i>
                       </div>
                     </div>
                     <div class="row">
                       <div class="col" style="margin: auto; margin-top: 40px">
-                        <i class="fas fa-bed big-arrow button-off" id="think-Rest"></i>
+                        <i class="fas fa-stop-circle big-arrow button-off" id="think-S"></i>
                       </div>
                     </div>
                   </center>
@@ -219,6 +222,8 @@
   <!-- ChartJS -->
   <script src="assets/js/chart.js/Chart.min.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@latest/dist/chartjs-plugin-streaming.min.js"></script>
+
   <script src="assets/js/socket.io.js"></script>
   <script src="assets/js/control.js"></script>
 
@@ -233,6 +238,8 @@
 
   <!-- Spectrogram -->
   <script src="assets/js/spectrogram.js"></script>
+
+
 
   <script>var socket = io();</script>
 
