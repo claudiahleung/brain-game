@@ -20,6 +20,7 @@ const p5BrainGame = new p5(sketch => {
       vy: config.verticalSpeed,
     },
     floors: [],
+    score: 0,
   };
 
   const player = state.player;
@@ -28,6 +29,7 @@ const p5BrainGame = new p5(sketch => {
     constructor() {
       this.x = sketch.random(0, sketch.width - config.gapWidth);
       this.y = sketch.height;
+      this.passed = false;
     }
 
     update() {
@@ -41,6 +43,9 @@ const p5BrainGame = new p5(sketch => {
       sketch.fill(config.bgColor);
       sketch.stroke(config.bgColor);
       sketch.rect(this.x, this.y, config.gapWidth, config.floorHeight);
+      sketch.textSize(30);
+      sketch.fill(0);
+      sketch.text('Score: '+state.score, 10, 30);
     }
 
     isOutOfBounds() {
@@ -55,6 +60,10 @@ const p5BrainGame = new p5(sketch => {
           }
           // else if () {}
       }
+      if (player.y - player.radius > this.y && !this.passed) {
+        this.passed = true;
+        state.score += 10; 
+      }
     }
   }
 
@@ -62,6 +71,7 @@ const p5BrainGame = new p5(sketch => {
     state.floors = [new Floor()];
     state.player.x = sketch.width / 2;
     state.player.y = sketch.height /2;
+    state.score = 0;
   };
 
 
