@@ -10,7 +10,7 @@ const p5BrainGame = new p5(sketch => {
       x: NaN,
       y: NaN,
       radius: NaN
-    }
+    },
     playerX: NaN,
     playerY: NaN,
     playerRadius: NaN,
@@ -27,7 +27,7 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.draw = () => {
     sketch.drawScene();
-    skecth.update();
+    sketch.update();
   };
 
   sketch.update = () => {
@@ -39,4 +39,4 @@ const p5BrainGame = new p5(sketch => {
     sketch.ellipse(gameState.playerX, gameState.playerY,
       2 * gameState.playerRadius);
   };
-}, 'game-div');
+}, 'brain-game-div');
