@@ -54,8 +54,8 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.reset = () => {
     state.floors = [new Floor()];
-    state.player.x = sketch.width / 2;
-    state.player.y = sketch.height /2;
+    player.x = sketch.width / 2;
+    player.y = sketch.height /2;
   };
 
 
@@ -74,9 +74,9 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.keyPressed = () => {
     if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
-        player.speedX = config.horizontalSpeed;
-    }  else if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
         player.speedX = -config.horizontalSpeed;
+    }  else if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
+        player.speedX = config.horizontalSpeed;
     }
   }
 
@@ -101,7 +101,19 @@ const p5BrainGame = new p5(sketch => {
       state.floors.push(new Floor());
     }
 
-    player.x += player.speedX;
+    // TODO: doesn't change direction if key is pressed before release
+    /*
+     * ex. holding the left arrowkey to move left, then holding the right arrowkey,
+     *     then releasing theleft arrowkey should cause player to change dir. to right
+     * Instead, it keeps moving left atm.
+     */
+    const playerLeftEdge = player.x - player.radius;
+    const playerRightEdge = player.x + player.radius;
+
+    if ((playerLeftEdge > 0             && player.speedX < 0) ||
+    (playerRightEdge < sketch.width && player.speedX > 0)){
+      player.x += player.speedX;
+    }
 
     const playerBottomEdge = player.y + player.radius;
     if (playerBottomEdge < sketch.height){
