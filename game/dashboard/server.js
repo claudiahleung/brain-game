@@ -97,6 +97,10 @@ app_express.get('/production', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/production.html'));
 });
 
+app_express.get('/game', (req, res) => {
+  res.sendFile(path.join(__dirname + '/public/game.html'));
+});
+
 console.log('Listening on Port 3000!')
 
 
