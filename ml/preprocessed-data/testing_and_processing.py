@@ -55,63 +55,67 @@ csvs = [
 		]
 
 list_of_dfs = []
-# for patient, patient_identifier in zip(csvs,["008", "005", "001", "009", "011", "014"]):
+X_ready = []
 
-# 	for label in patient:
-# 		list_of_dfs.append(pd.read_csv(label, usecols=["Time", "Channel 1", "Channel 2", "Channel 7", "Channel 8", "Direction"]))
+for patient, patient_identifier in zip(csvs,["008", "005", "001", "009", "011", "014"]):
 
-# 	master_df = pd.DataFrame()
-# 	for df in list_of_dfs:
-# 		master_df = master_df.append(df)
+	for label in patient:
+		list_of_dfs.append(pd.read_csv(label, usecols=["Time", "Channel 1", "Channel 2", "Channel 7", "Channel 8", "Direction"]))
 
-# 	X_raw_data = df.drop(columns=["Direction", "Time"]).dropna().values
+	master_df = pd.DataFrame()
+	for df in list_of_dfs:
+		master_df = master_df.append(df)
 
-# 	start = 0
-# 	end = start + 255/5
+	X_raw_data = df.drop(columns=["Direction", "Time"]).dropna().values
 
-# 	X_ready = []
-
-
-# 	# n_intervals = int((max_time - min_time)/255*5)
-# 	# start = min_time
-# 	# end = start + 255/5
-# 	start = 0
-# 	end = start + 255/5
-
-# 	print("EXTREMA")
-# 	print(df.max())
-# 	print(df.min())
-# 	print("ABOVE")
-
-# 	counter = 0
-# 	print("MAX MIN")
-# 	# print(max_time)
-# 	# print(min_time)
-# 	print(master_df.head())
-# 	print(master_df.shape)
-# 	while(end <= master_df.shape[0]):
-# 		# selected_rows = df[(df['Time'] >= start) & (df['Time'] <= end)]
-# 		selected_rows = master_df.iloc[int(start):int(end)]
+	start = 0
+	end = start + 255/5
 
 
-# 		c1_mode = np.mean(selected_rows["Channel 1"].values)
-# 		c2_mode = np.mean(selected_rows["Channel 2"].values)
-# 		c7_mode = np.mean(selected_rows["Channel 7"].values)
-# 		c8_mode = np.mean(selected_rows["Channel 8"].values)
 
-# 		X_ready.append(np.array([c1_mode, c2_mode, c7_mode, c8_mode]).reshape(4,))
+	# n_intervals = int((max_time - min_time)/255*5)
+	# start = min_time
+	# end = start + 255/5
+	start = 0
+	end = start + 255/5
 
-# 		if counter%1000==0:
-# 			print(np.array([c1_mode, c2_mode, c7_mode, c8_mode]).reshape(4,))
-# 			print(counter)
+	print("EXTREMA")
+	print(df.max())
+	print(df.min())
+	print("ABOVE")
 
-# 		counter += 1
-# 		start += 255/5
-# 		end += 255/5
+	counter = 0
+	print("MAX MIN")
+	# print(max_time)
+	# print(min_time)
+	print(master_df.head())
+	print(master_df.shape)
+	while(end <= master_df.shape[0]):
+		# selected_rows = df[(df['Time'] >= start) & (df['Time'] <= end)]
+		selected_rows = master_df.iloc[int(start):int(end)]
 
-# 	norm_scaler = Normalizer()
-# 	norm_scaler.fit_transform(X_ready)
-# 	joblib.dump(norm_scaler, "overall_normalizer.pkl")
+
+		c1_mode = np.mean(selected_rows["Channel 1"].values)
+		c2_mode = np.mean(selected_rows["Channel 2"].values)
+		c7_mode = np.mean(selected_rows["Channel 7"].values)
+		c8_mode = np.mean(selected_rows["Channel 8"].values)
+
+		X_ready.append(np.array([c1_mode, c2_mode, c7_mode, c8_mode]).reshape(4,))
+
+		if counter%1000==0:
+			print(np.array([c1_mode, c2_mode, c7_mode, c8_mode]).reshape(4,))
+			print(counter)
+
+		counter += 1
+		start += 255/5
+		end += 255/5
+
+norm_scaler = Normalizer()
+norm_scaler.fit_transform(X_ready)
+joblib.dump(norm_scaler, "overall_normalizer.pkl")
+
+
+
 
 for patient, patient_identifier in zip(csvs,["008", "005", "001", "009", "011", "014"]):
 	list_of_dfs = []
@@ -211,8 +215,8 @@ for patient, patient_identifier in zip(csvs,["008", "005", "001", "009", "011", 
 	X_ready = normalizer.fit_transform(X_ready)
 	# joblib.dump(norm_scaler, )
 
-	scaler = MinMaxScaler(feature_range=(0,1))
-	X_ready = scaler.fit_transform(X_ready)
+	# scaler = MinMaxScaler(feature_range=(0,1))
+	# X_ready = scaler.fit_transform(X_ready)
 
 	np.savetxt("X_data"+patient_identifier+".csv", X_ready, delimiter=",", fmt="%s")
 	np.savetxt("y_data"+patient_identifier+".csv", y_ready, delimiter=",", fmt="%s")
@@ -243,7 +247,7 @@ for patient, patient_identifier in zip(csvs,["008", "005", "001", "009", "011", 
 	print(len(y_test))
 
 	print("ACC: "+str(counter/acc*100)+" %")
-	print("AUC"+str(roc_auc_score(predictions, y_test)))
+	print("AUC: "+str(roc_auc_score(predictions, y_test)))
 
 	for i in range(20):
 		print(predictions[i], end='\t')
