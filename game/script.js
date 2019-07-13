@@ -12,6 +12,7 @@ const p5BrainGame = new p5(sketch => {
       y: NaN,
       radius: NaN,
       speedX: 0,
+      speedY: gameConfig.UNIT / 10,
     },
     gapsX: NaN,
     gapsY: NaN,
@@ -21,7 +22,7 @@ const p5BrainGame = new p5(sketch => {
     sketch.createCanvas(300, 600);
     gameState.player.radius = 2 * gameConfig.UNIT
     gameState.player.x = sketch.width / 2;
-    gameState.player.y = sketch.height /2;
+    gameState.player.y = sketch.height / 2;
   }
 
   sketch.draw = () => {
@@ -48,6 +49,11 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.update = () => {
     gameState.player.x += gameState.player.speedX;
+
+    const playerBottomEdge = gameState.player.y + gameState.player.radius;
+    if (playerBottomEdge !== sketch.height){
+      gameState.player.y += gameState.player.speedY;
+    }
   };
 
   sketch.drawScene = () => {
