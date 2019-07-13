@@ -1,27 +1,33 @@
 /* eslint-disable */
+
 const p5BrainGame = new p5(sketch => {
-  let gameConfig = {
+  const UNIT = 10;
+  const config = {
     gapDist: NaN,
     gapWidth: NaN,
-    UNIT: 10,
+    horizontalSpeed: UNIT / 2,
+    verticalSpeed: UNIT / 10,
   };
 
-  let gameState = {
+  const state = {
     player: {
       x: NaN,
       y: NaN,
       radius: NaN,
       speedX: 0,
+      speedY: config.verticalSpeed,
     },
     gapsX: NaN,
     gapsY: NaN,
   };
 
+  const player = state.player;
+
   sketch.setup = () => {
     sketch.createCanvas(300, 600);
-    gameState.player.radius = 2 * gameConfig.UNIT
-    gameState.player.x = sketch.width / 2;
-    gameState.player.y = sketch.height /2;
+    player.radius = 2 * UNIT
+    player.x = sketch.width / 2;
+    player.y = sketch.height / 2;
   }
 
   sketch.draw = () => {
@@ -31,28 +37,33 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.keyPressed = () => {
     if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
-        console.log(" left arrow ================", gameState.player.speedX);
-        gameState.player.speedX = -0.5 * gameConfig.UNIT;
-        console.log(" left arrow done ================", gameState.player.speedX);
+        console.log(" left arrow ================", player.speedX);
+        player.speedX = config.horizontalSpeed;
+        console.log(" left arrow done ================", player.speedX);
     }  else if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
-        console.log(" right arrow ================", gameState.player.speedX);
-        gameState.player.speedX = 0.5 * gameConfig.UNIT;
-        console.log(" right arrow done ================", gameState.player.speedX);
+        console.log(" right arrow ================", player.speedX);
+        player.speedX = -1 * config.horizontalSpeed;
+        console.log(" right arrow done ================", player.speedX);
     }
   }
 
   sketch.keyReleased = () => {
-    gameState.player.speedX = 0;
+    player.speedX = 0;
     console.log("key released==========");
   }
 
   sketch.update = () => {
-    gameState.player.x += gameState.player.speedX;
+    player.x += player.speedX;
+
+    const playerBottomEdge = player.y + player.radius;
+    if (playerBottomEdge !== sketch.height){
+      player.y += player.speedY;
+    }
   };
 
   sketch.drawScene = () => {
     sketch.background(220);
-    sketch.ellipse(gameState.player.x, gameState.player.y,
-      2 * gameState.player.radius);
+    sketch.ellipse(player.x, player.y,
+      2 * player.radius);
   };
 }, 'brain-game-div');
