@@ -20,10 +20,11 @@ const p5BrainGame = new p5(sketch => {
   
   sketch.setup = () => {
     sketch.createCanvas(300, 600);
+    sketch.noStroke();
     gameState.playerRadius = 2 * gameConfig.UNIT
     gameState.playerX = sketch.width / 2;
     gameState.playerY = sketch.height /2;
-  }
+  };
 
   sketch.draw = () => {
     sketch.drawScene();
@@ -36,6 +37,7 @@ const p5BrainGame = new p5(sketch => {
   
   sketch.drawScene = () => {
     sketch.background(220);
+    sketch.fill(0);
     sketch.ellipse(gameState.playerX, gameState.playerY,
       2 * gameState.playerRadius);
   };
