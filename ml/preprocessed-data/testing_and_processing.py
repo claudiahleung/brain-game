@@ -219,10 +219,10 @@ for patient, patient_identifier in zip(csvs,["008", "005", "001", "009", "011", 
 	# X_ready = scaler.fit_transform(X_ready)
 
 	np.savetxt("X_data"+patient_identifier+".csv", X_ready, delimiter=",", fmt="%s")
-	np.savetxt("y_data"+patient_identifier+".csv", y_ready, delimiter=",", fmt="%s")
+	np.savetxt("y_data"+patient_identifier+".csv", y_processed_labels, delimiter=",", fmt="%s")
 
 
-	X_train, X_test, y_train, y_test = train_test_split(X_ready, y_processed_labels, test_size=0.2)
+	X_train, X_test, y_train, y_test = train_test_split(X_ready, y_processed_labels, test_size=0.2, random_state=42)
 
 	print(y_train[:10])
 
