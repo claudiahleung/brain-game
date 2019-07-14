@@ -93,12 +93,20 @@ app_express.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
+app_express.get('/trainer', (req, res) => {
+  res.sendFile(path.join(__dirname + '/public/trainer.html'));
+});
+
 app_express.get('/production', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/production.html'));
 });
 
 app_express.get('/game', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/game.html'));
+});
+
+app_express.get('/settings', (req, res) => {
+  res.sendFile(path.join(__dirname + '/public/settings.html'));
 });
 
 console.log('Listening on Port 3000!')
