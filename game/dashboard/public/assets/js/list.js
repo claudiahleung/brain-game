@@ -6,8 +6,9 @@ $(document).ready(function() {
   var active = [1,1,1,1,1,1,1,1];
   //Made global so stop button can clear it
   var collectionTimer = null;
-  var loop = false;
+  //var loop = false;
 
+  /** removing previous loop code
   $('#customControlValidation1').change(function() {
       if(this.checked) {
           $(this).prop('checked', true);
@@ -18,6 +19,7 @@ $(document).ready(function() {
           loop = false;
       }
   });
+  */
 
   //To remove an element from the queue
   $("#commandList").on("click",".remove",function(){
@@ -34,12 +36,9 @@ $(document).ready(function() {
     if(clicked.is('.direction-left')){
       //Make list item with left and duration!
       $("#commandList").append($("<div class='list-group-item tinted' data-direction='Left' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Left " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
-
-
     }
     else if(clicked.is('.direction-right')){
       $("#commandList").append($("<div class='list-group-item tinted' data-direction='Right' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Right " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
-
     }
     else if(clicked.is('.direction-rest')){
       $("#commandList").append($("<div class='list-group-item tinted' data-direction='Rest' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Rest " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
@@ -72,7 +71,7 @@ $(document).ready(function() {
         //Finally emits a collectQueue!
 
         //Gives the queue array with the direcions/durations and active sensors
-        socket.emit("collectQueue", {queue: queue, sensors: active, trialName: trialName, loop: loop});
+        socket.emit("collectQueue", {queue: queue, sensors: active, trialName: trialName});//, loop: loop});
 
         let totalTime = 0;
         let times = [];
@@ -149,6 +148,25 @@ $(document).ready(function() {
 
     }
 
+  });
+
+  // loop button implementation
+  $(".loop-btn").click(function() {
+    console.log("Loop button clicked")
+
+    // get loop times and current elements in queue
+    var times = $("#loopTimes").val();
+    var currentList = $("#commandList div");
+
+    for (var i = 0; i < times - 1; i++) {
+      for (var j = 0; j < currentList.length; j++) {
+
+        // add elements to queue
+        var direction = currentList[j].getAttribute("data-direction");
+        var duration = currentList[j].getAttribute("data-duration");
+        $("#commandList").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> " + direction + " " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+      }
+    }
   });
 
 });

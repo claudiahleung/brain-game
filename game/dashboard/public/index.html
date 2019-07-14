@@ -203,17 +203,28 @@
                       </div>
                           <input type="text" class="form-control timer" placeholder="Enter duration here..." aria-label="Enter duration here.." aria-describedby="basic-addon1" value=10>
                   </div>
-                      <!-- Buttons to add elements to the queue -->
-                      <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
-                          <button class="selection btn btn-outline-secondary direction-left">Left</button>
-                          <button class="selection btn btn-outline-secondary direction-rest">Rest</button>
-                          <button class="selection btn btn-outline-secondary direction-right">Right</button>
+                  <!-- Buttons to add elements to the queue -->
+                  <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
+                      <button class="selection btn btn-outline-secondary direction-left">Left</button>
+                      <button class="selection btn btn-outline-secondary direction-rest">Rest</button>
+                      <button class="selection btn btn-outline-secondary direction-right">Right</button>
+                  </div>
+                  <!-- removing loop checkbox
+                  <div class="custom-control custom-checkbox mb-3">
+                      <input type="checkbox" class="custom-control-input" id="customControlValidation1" required>
+                      <label class="custom-control-label" for="customControlValidation1">Loop</label>
+                      <div class="invalid-feedback">Example invalid feedback text</div>
+                  </div>
+                  -->
+                  <div class="input-group">
+                      <div class="input-group-prepend">
+                          <span class="input-group-text">Loop</span>
                       </div>
-                      <div class="custom-control custom-checkbox mb-3">
-                          <input type="checkbox" class="custom-control-input" id="customControlValidation1" required>
-                          <label class="custom-control-label" for="customControlValidation1">Loop</label>
-                          <div class="invalid-feedback">Example invalid feedback text</div>
-                        </div>
+                          <input type="text" id="loopTimes" class="form-control" aria-describedby="basic-addon1" value=3>
+                      <div class="input-group-append">
+                          <button class="loop-btn btn btn-outline-secondary">Apply</button>
+                      </div>
+                  </div>
                 </div>
               </div>
             </div>
