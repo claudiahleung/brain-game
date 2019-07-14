@@ -6,20 +6,6 @@ $(document).ready(function() {
   var active = [1,1,1,1,1,1,1,1];
   //Made global so stop button can clear it
   var collectionTimer = null;
-  //var loop = false;
-
-  /** removing previous loop code
-  $('#customControlValidation1').change(function() {
-      if(this.checked) {
-          $(this).prop('checked', true);
-          loop = true;
-      }
-      else{
-          $(this).prop('checked', false);
-          loop = false;
-      }
-  });
-  */
 
   //To remove an element from the queue
   $("#commandList").on("click",".remove",function(){
@@ -43,10 +29,16 @@ $(document).ready(function() {
     else if(clicked.is('.direction-rest')){
       $("#commandList").append($("<div class='list-group-item tinted' data-direction='Rest' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Rest " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
     }
+    else if (clicked.is('.freq-10')) {
+      $("#commandList").append($("<div class='list-group-item tinted' data-direction='10Hz' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> 10 Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    }
+    else if (clicked.is('.freq-12')) {
+      $("#commandList").append($("<div class='list-group-item tinted' data-direction='12Hz' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> 12 Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    }
+    else if (clicked.is('.freq-15')) {
+      $("#commandList").append($("<div class='list-group-item tinted' data-direction='15Hz' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> 15 Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    }
     else{
-
-      // var loop = $("#loop").prop("checked") //returns true or false!
-      //if 'else', must be collect!
 
       //Amount of elements in the queue
 
@@ -64,14 +56,10 @@ $(document).ready(function() {
               queue.push([itemDirection, itemDuration]);
         });
 
-        // if(loop){
-        //   queue.push(["loop", 0]);
-        // }
-
         //Finally emits a collectQueue!
 
         //Gives the queue array with the direcions/durations and active sensors
-        socket.emit("collectQueue", {queue: queue, sensors: active, trialName: trialName});//, loop: loop});
+        socket.emit("collectQueue", {queue: queue, sensors: active, trialName: trialName});
 
         let totalTime = 0;
         let times = [];
@@ -169,4 +157,52 @@ $(document).ready(function() {
     }
   });
 
+  // clear button
+  $(".clear-btn").click(function() {
+    clearList("#commandList")
+  });
+
+  // load a default protocol
+  $(".load-default").click(function() {
+
+    // first clear current protocol space
+    clearList("#currentProtocol");
+
+    // get protocol type
+    var protocol = $(this).attr("protocol-name");
+
+    console.log(protocol);
+
+    // send request to server
+    socket.emit("requestDefaultProtocol", protocol);
+  })
+
+  // send current protocol to server whenever user refreshes/changes page
+  $(window).on("beforeunload", function() {
+    var protocol = [];
+
+    $('#commandList').children('div').each(function () {
+        var itemDuration = $(this).data("duration");
+        var itemDirection = $(this).data("direction")
+        queue.push([itemDirection, itemDuration]);
+    });
+
+    socket.emit('protocolChanged', {protocol: protocol});
+  });
+
+  // load current protocol
+  socket.on('currentProtocol', function(currentProtocol) {
+    for (var i = 0; i < currentProtocol.length; i++) {
+      var direction = currentProtocol[i][0];
+      var duration = currentProtocol[i][1];
+      $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> " + direction + " " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    }
+  });
+
 });
+
+function clearList(id) {
+  $(id + " div").each(function() {
+    $(this).remove();
+  });
+}

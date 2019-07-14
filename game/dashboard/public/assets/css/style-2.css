@@ -31,6 +31,12 @@
   overflow-y: scroll;
 }
 
+#currentProtocol {
+  width: 100%;
+  height: 230px;
+  overflow-y: scroll;
+}
+
 .big-arrow {
   font-size: 90px;
 }

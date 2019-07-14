@@ -25,7 +25,6 @@ var duration = 0;
 var direction = "none";
 var active = [];
 var collectionTimer=null;
-var loop = false;
 var trialName = null;
 var timeTesting = getTimeValue();
 var numSamples = 0;
@@ -265,7 +264,6 @@ io.on('connection', function(socket){
     timeSamples = [timeHeaderToWrite];
     collectQueue = clientRequest['queue'];
     trialName = clientRequest['trialName'];
-    loop = clientRequest['loop'];
     console.log(collectQueue);
     console.log("This is trial: " + trialName);
 
@@ -301,15 +299,7 @@ io.on('connection', function(socket){
           endTest(true, true);
 
           console.log("Trial over.");
-          if(loop == true){
-              time = 0;
-              collecting = true;
-              j = 0;
-              direction = collectQueue[0][0];
-          }
-          else{
-              clearInterval(collectionTimer);
-          }
+          clearInterval(collectionTimer);
         }
         time++;
     }, 1000);
@@ -317,8 +307,6 @@ io.on('connection', function(socket){
   });
 
   // Production
-
-
   //
   // socket.on("from sensors", function(data){
   //   // data: {front, left, right, front-tilt}
@@ -489,4 +477,47 @@ io.on('connection', function(socket){
     // var process = spawn('python',["../real_time_ML.py"]);
     // console.log('spawned')
   });
+
+  // when user goes on settings page
+  socket.on('settings', function() {
+    // send current protocol
+    socket.emit('currentProtocol', currentProtocol);
+  })
+
+  socket.on('requestDefaultProtocol', function(protocolName) {
+    currentProtocol = defaultProtocols[protocolName];
+    socket.emit('currentProtocol', currentProtocol);
+  })
+
 });
+
+/*
+Generate default data collection protocols
+*/
+protocolFile = "default_protocols.json";
+var defaultProtocols = {
+  defaultAll: [],
+  defaultMu: [],
+  defaultSSVEP: []
+};
+// default mu queue
+var directionsMu = ['Left', 'Rest', 'Right'];
+var durationMu = 20;
+// default SSVEP queue
+var frequenciesSSVEP = ['10Hz', '12Hz', '15Hz'];
+var durationSSVEP = 8;
+
+for (var i = 0; i < 2; i++) {
+  for (var j = 0; j < directionsMu.length; j++) {
+    defaultProtocols["defaultAll"].push([directionsMu[j], durationMu]);
+    defaultProtocols["defaultMu"].push([directionsMu[j], durationMu]);
+  }
+}
+for (var i = 0; i < 3; i++) {
+  for (var j = 0; j < directionsMu.length; j++) {
+    defaultProtocols["defaultAll"].push([frequenciesSSVEP[j], durationSSVEP]);
+    defaultProtocols["defaultSSVEP"].push([frequenciesSSVEP[j], durationSSVEP]);
+  }
+}
+// load default mu + SSVEP protocol
+currentProtocol = defaultProtocols["defaultAll"];
