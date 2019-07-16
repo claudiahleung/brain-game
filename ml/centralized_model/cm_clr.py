@@ -8,7 +8,7 @@ def plot_confusion_matrix(cm, classes, title, normalize=True, cmap=plt.cm.BuPu):
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     
-    plt.rcParams["figure.figsize"] = (20,20)
+    plt.rcParams["figure.figsize"] = (8,8)
     plt.imshow(cm, cmap=cmap)
     plt.title(title)
     plt.colorbar()
