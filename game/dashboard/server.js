@@ -478,8 +478,7 @@ io.on('connection', function(socket){
     // console.log('spawned')
   });
 
-  // when user goes on settings page
-  socket.on('settings', function() {
+  socket.on('requestCurrentProtocol', function() {
     // send current protocol
     socket.emit('currentProtocol', currentProtocol);
   })

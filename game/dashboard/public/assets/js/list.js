@@ -6,6 +6,7 @@ $(document).ready(function() {
   var active = [1,1,1,1,1,1,1,1];
   //Made global so stop button can clear it
   var collectionTimer = null;
+  var currentProtocol;
 
   //To remove an element from the queue
   $("#commandList").on("click",".remove",function(){
@@ -44,17 +45,25 @@ $(document).ready(function() {
 
       //Flashes bright green briefly
       if((count != 0) && !$( "#btn-collect" ).hasClass( "btn-danger" )){ //Non empty list and not already clicked
-          var queue = [];
-          var count = $("#commandList div").length;
           trialName = $('#trial-name').val();
           $('#btn-collect').toggleClass('btn-danger');
           $('#btn-collect').html("Stop &nbsp;<i class='fas fa-stop fa-sm text-white'></i>");
+
+
+          var queue = currentProtocol;
+          var count = queue.length;
+
+          /* removing this because queue was moved to Settings page
+          var queue = [];
+          var count = $("#commandList div").length;
           //For each element in the queue, push their direction and duration
           $('#commandList').children('div').each(function () {
               var itemDuration = $(this).data("duration");
               var itemDirection = $(this).data("direction")
               queue.push([itemDirection, itemDuration]);
-        });
+
+            });
+          */
 
         //Finally emits a collectQueue!
 
@@ -191,11 +200,12 @@ $(document).ready(function() {
   });
 
   // load current protocol
-  socket.on('currentProtocol', function(currentProtocol) {
-    for (var i = 0; i < currentProtocol.length; i++) {
-      var direction = currentProtocol[i][0];
-      var duration = currentProtocol[i][1];
+  socket.on('currentProtocol', function(data) {
+    for (var i = 0; i < data.length; i++) {
+      var direction = data[i][0];
+      var duration = data[i][1];
       $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> " + direction + " " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+      currentProtocol = data;
     }
   });
 

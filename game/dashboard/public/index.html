@@ -305,6 +305,7 @@
   <script>
     var socket = io();
     socket.emit('production', {on: false});
+    socket.emit('requestCurrentProtocol');
   </script>
   <script>
 
