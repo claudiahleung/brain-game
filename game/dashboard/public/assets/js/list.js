@@ -200,16 +200,28 @@ $(document).ready(function() {
   });
 
   // load current protocol
-  socket.on('currentProtocol', function(data) {
-    for (var i = 0; i < data.length; i++) {
-      var direction = data[i][0];
-      var duration = data[i][1];
-      $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> " + direction + " " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
-      currentProtocol = data;
-    }
+  socket.on('currentProtocol', function(protocol) {
+    currentProtocol = protocol;
+    generateList(protocol);
   });
 
 });
+
+// function that displays current protocol
+function generateList(protocol) {
+  for (var i = 0; i < protocol.length; i++) {
+    var direction = protocol[i][0];
+    var duration = protocol[i][1];
+
+    if (page == 'training') {
+      // do not allow user to modify protocol
+      $("#currentProtocol").append($("<div class='list-group-item tinted list-training' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
+    } else if (page == 'settings') {
+      // allow user to modifiy protocol
+      $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> " + direction + " " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    }
+  }
+}
 
 function clearList(id) {
   $(id + " div").each(function() {

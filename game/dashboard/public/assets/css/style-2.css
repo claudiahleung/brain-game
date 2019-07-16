@@ -25,6 +25,10 @@
   margin-bottom: 0;
 }
 
+.list-training {
+  text-align: center;
+}
+
 #commandList {
   width: 100%;
   height: 230px;
