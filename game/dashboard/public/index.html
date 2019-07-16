@@ -151,46 +151,8 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                  <div id="commandList" class="list-group col">
-                      <div class="list-group-item tinted" data-direction="Left" data-duration="20"><i class="fas fa-arrows-alt handle"></i> Left 20s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                      <div class="list-group-item tinted" data-direction="Right" data-duration="20"><i class="fas fa-arrows-alt handle"></i> Right 20s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                      <div class="list-group-item tinted" data-direction="Rest" data-duration="20"><i class="fas fa-arrows-alt handle"></i> Rest 20s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  <div id="currentProtocol" class="list-group col">
 
-            <!-- Add to Queue -->
-            <div class="col-xl-3 col-lg-3 col-md-4">
-              <div class="card shadow mb-4" style="z-index: 1">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Add to Queue</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                  <!-- Duration -->
-                  <div class="input-group mb-3">
-                      <div class="input-group-prepend">
-                          <span class="input-group-text" id="basic-addon1">Seconds</span>
-                      </div>
-                          <input type="text" class="form-control timer" placeholder="Enter duration here..." aria-label="Enter duration here.." aria-describedby="basic-addon1" value=20>
-                  </div>
-                  <!-- Buttons to add elements to the queue -->
-                  <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
-                      <button class="selection btn btn-outline-secondary direction-left">Left</button>
-                      <button class="selection btn btn-outline-secondary direction-rest">Rest</button>
-                      <button class="selection btn btn-outline-secondary direction-right">Right</button>
-                  </div>
-                  <!-- Loop input and button -->
-                  <div class="input-group">
-                      <div class="input-group-prepend">
-                          <span class="input-group-text">Loop</span>
-                      </div>
-                          <input type="text" id="loopTimes" class="form-control" aria-describedby="basic-addon1" value=3>
-                      <div class="input-group-append">
-                          <button class="loop-btn btn btn-outline-secondary">Apply</button>
-                      </div>
                   </div>
                 </div>
               </div>
@@ -306,22 +268,6 @@
     var socket = io();
     socket.emit('production', {on: false});
     socket.emit('requestCurrentProtocol');
-  </script>
-  <script>
-
-    var left = document.getElementById('commandList');
-
-    new Sortable(left, {
-      group: {
-          name: 'shared',
-          handle: '.handle', // To clone: set pull to 'clone'
-          put: false
-      },
-      animation: 150,
-      sort: true,
-      handle: '.handle'
-  });
-
   </script>
 
 </body>
