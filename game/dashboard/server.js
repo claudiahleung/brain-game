@@ -489,4 +489,21 @@ io.on('connection', function(socket){
     // var process = spawn('python',["../real_time_ML.py"]);
     // console.log('spawned')
   });
+
+  socket.on('incomingTimestamps', function(timestamps_cues) {
+
+    let date = new Date();
+    var filename = 'data/timestamps-' + date.getFullYear() + '-' + (date.getMonth()+1) + '-' +
+                   date.getDate() + '-' + date.getHours() + '-' +
+                   date.getMinutes() + '-' + date.getSeconds() + '.json';
+
+    fs.writeFile(filename, JSON.stringify(timestamps_cues), function(err) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('timestamps + labels saved');
+      }
+    })
+
+  })
 });

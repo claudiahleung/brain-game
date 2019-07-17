@@ -92,8 +92,12 @@ $(document).ready(function() {
         //This is the direction of the first element
         let durationLeft = times[0] - 0;//Do we need - 0?
 
+        // code to save timestamps
+        var timestamps_cues = [];
+
         //Sets display to first elements command/time
         console.log('think-' + direction)
+        timestamps_cues.push({'time':getTimeValue(), 'cue':direction}) // save first timestamp
         $('#think-' + direction).removeClass('button-off');
         $('#think-' + direction).addClass('button-on');
         $('#collectTime').html(durationLeft + ' s');
@@ -111,6 +115,7 @@ $(document).ready(function() {
                 $('#think-' + direction).removeClass('button-on');
                 $('#think-' + direction).addClass('button-off');
                 direction = queue[j][0];
+                timestamps_cues.push({'time':getTimeValue(), 'cue':direction}) // save timestamp
                 $('#think-' + direction).removeClass('button-off');
                 $('#think-' + direction).addClass('button-on'); //Setup direction again
               }
@@ -121,6 +126,8 @@ $(document).ready(function() {
               time++;
             }
             else {
+                timestamps_cues.push({'time':getTimeValue(), 'cue':'end'}) // save timestamp
+                socket.emit('incomingTimestamps', timestamps_cues)
                 $('#btn-collect').toggleClass('btn-danger');
                 $('#btn-collect').html("Collect &nbsp; <i class='fas fa-play fa-sm text-white'></i>");
                 $('#think-' + direction).removeClass('button-on');
@@ -168,5 +175,14 @@ $(document).ready(function() {
       }
     }
   });
+
+  /* copied from server.js */
+  /* Gets the current time */
+  function getTimeValue() {
+    var dateBuffer = new Date();
+    var Time = dateBuffer.getTime();
+    //Milliseconds since 1 January 1970
+    return Time;
+  }
 
 });
