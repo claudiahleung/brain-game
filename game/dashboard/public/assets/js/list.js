@@ -173,21 +173,13 @@ $(document).ready(function() {
     }
   });
 
-
-  /* copied from server.js */
-  /* Gets the current time */
-  function getTimeValue() {
-    var dateBuffer = new Date();
-    var Time = dateBuffer.getTime();
-    //Milliseconds since 1 January 1970
-    return Time;
-  }
-
+  // load button (from Custom Protocol)
   $(".load-custom").click(function() {
+
+    // first clear the current protocol space
     clearList('#currentProtocol');
 
     var protocol = [];
-
     $('#commandList').children('div').each(function () {
         var itemDuration = $(this).data("duration");
         var itemDirection = $(this).data("direction")
@@ -199,10 +191,11 @@ $(document).ready(function() {
 
   // clear button (from 'Customize Protocol')
   $(".clear-btn").click(function() {
+    // clear custom protocol space
     clearList("#commandList");
   });
 
-  // load a default protocol
+  // load button (from 'Load Default Protocol')
   $(".load-default").click(function() {
 
     // first clear current protocol space
@@ -210,7 +203,6 @@ $(document).ready(function() {
 
     // get protocol type
     var protocolName = $(this).attr("protocol-name");
-    console.log(protocolName);
 
     // send request to server
     socket.emit("requestDefaultProtocol", protocolName);
@@ -229,13 +221,19 @@ $(document).ready(function() {
     socket.emit('protocolChanged', protocol);
   });
 
-  // load current protocol
-  socket.on('currentProtocol', function(protocol) {
-    currentProtocol = protocol;
-    generateList(protocol);
-  });
-
 });
+
+/*
+ * functions
+ */
+
+/* Gets the current time (copied from server.js) */
+function getTimeValue() {
+  var dateBuffer = new Date();
+  var Time = dateBuffer.getTime();
+  //Milliseconds since 1 January 1970
+  return Time;
+}
 
 // function that displays current protocol
 function generateList(protocol) {
@@ -244,10 +242,11 @@ function generateList(protocol) {
     var duration = protocol[i][1];
 
     // do not allow user to modify protocol
-    $("#currentProtocol").append($("<div class='list-group-item tinted list-training' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
+    $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
   }
 }
 
+// function that clears list (id should be either #currentProtocol or #commandList)
 function clearList(id) {
   $(id + " div").each(function() {
     $(this).remove();
