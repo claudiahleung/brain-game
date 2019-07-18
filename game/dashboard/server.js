@@ -488,6 +488,12 @@ io.on('connection', function(socket){
     socket.emit('currentProtocol', currentProtocol);
   })
 
+  socket.on('protocolChanged', function(protocol) {
+    currentProtocol = protocol;
+    socket.emit('currentProtocol', currentProtocol);
+    console.log('test' + currentProtocol);
+  })
+
 });
 
 /*

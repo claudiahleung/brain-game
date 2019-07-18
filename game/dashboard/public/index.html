@@ -265,10 +265,6 @@
   <script src="assets/js/spectrogram.js"></script>
 
   <script>
-    var page = 'training';
-  </script>
-
-  <script>
     var socket = io();
     socket.emit('production', {on: false});
     socket.emit('requestCurrentProtocol');

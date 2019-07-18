@@ -147,7 +147,7 @@ $(document).ready(function() {
 
   });
 
-  // loop button implementation
+  // loop button
   $(".loop-btn").click(function() {
     console.log("Loop button clicked")
 
@@ -166,9 +166,23 @@ $(document).ready(function() {
     }
   });
 
-  // clear button
+  $(".load-custom").click(function() {
+    clearList('#currentProtocol');
+
+    var protocol = [];
+
+    $('#commandList').children('div').each(function () {
+        var itemDuration = $(this).data("duration");
+        var itemDirection = $(this).data("direction")
+        protocol.push([itemDirection, itemDuration]);
+    });
+
+    socket.emit('protocolChanged', protocol);
+  })
+
+  // clear button (from 'Customize Protocol')
   $(".clear-btn").click(function() {
-    clearList("#commandList")
+    clearList("#commandList");
   });
 
   // load a default protocol
@@ -178,25 +192,24 @@ $(document).ready(function() {
     clearList("#currentProtocol");
 
     // get protocol type
-    var protocol = $(this).attr("protocol-name");
-
-    console.log(protocol);
+    var protocolName = $(this).attr("protocol-name");
+    console.log(protocolName);
 
     // send request to server
-    socket.emit("requestDefaultProtocol", protocol);
+    socket.emit("requestDefaultProtocol", protocolName);
   })
 
   // send current protocol to server whenever user refreshes/changes page
   $(window).on("beforeunload", function() {
     var protocol = [];
 
-    $('#commandList').children('div').each(function () {
+    $('#currentProtocol').children('div').each(function () {
         var itemDuration = $(this).data("duration");
         var itemDirection = $(this).data("direction")
-        queue.push([itemDirection, itemDuration]);
+        protocol.push([itemDirection, itemDuration]);
     });
 
-    socket.emit('protocolChanged', {protocol: protocol});
+    socket.emit('protocolChanged', protocol);
   });
 
   // load current protocol
@@ -213,13 +226,8 @@ function generateList(protocol) {
     var direction = protocol[i][0];
     var duration = protocol[i][1];
 
-    if (page == 'training') {
-      // do not allow user to modify protocol
-      $("#currentProtocol").append($("<div class='list-group-item tinted list-training' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
-    } else if (page == 'settings') {
-      // allow user to modifiy protocol
-      $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> " + direction + " " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
-    }
+    // do not allow user to modify protocol
+    $("#currentProtocol").append($("<div class='list-group-item tinted list-training' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
   }
 }
 

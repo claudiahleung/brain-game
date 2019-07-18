@@ -200,11 +200,11 @@
                 <div class="card-body">
                   <div id="commandList" class="list-group col">
                       <div class="list-group-item tinted" data-direction="Left" data-duration="20"><i class="fas fa-arrows-alt handle"></i> Left 20s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                      <div class="list-group-item tinted" data-direction="Right" data-duration="20"><i class="fas fa-arrows-alt handle"></i> Right 20s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
                       <div class="list-group-item tinted" data-direction="Rest" data-duration="20"><i class="fas fa-arrows-alt handle"></i> Rest 20s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
+                      <div class="list-group-item tinted" data-direction="Right" data-duration="20"><i class="fas fa-arrows-alt handle"></i> Right 20s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
                   </div>
                   <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
-                    <button class="btn-load btn btn-outline-secondary">Load</button>
+                    <button class="load-custom btn btn-outline-secondary">Load</button>
                   </div>
                 </div>
               </div>
@@ -248,10 +248,6 @@
   <script>
     var socket = io();
     socket.emit('requestCurrentProtocol');
-  </script>
-
-  <script>
-    var page = 'settings';
   </script>
 
   <script>
