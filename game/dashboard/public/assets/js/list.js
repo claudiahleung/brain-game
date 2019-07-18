@@ -6,20 +6,7 @@ $(document).ready(function() {
   var active = [1,1,1,1,1,1,1,1];
   //Made global so stop button can clear it
   var collectionTimer = null;
-  //var loop = false;
-
-  /** removing previous loop code
-  $('#customControlValidation1').change(function() {
-      if(this.checked) {
-          $(this).prop('checked', true);
-          loop = true;
-      }
-      else{
-          $(this).prop('checked', false);
-          loop = false;
-      }
-  });
-  */
+  var currentProtocol;
 
   //To remove an element from the queue
   $("#commandList").on("click",".remove",function(){
@@ -43,35 +30,45 @@ $(document).ready(function() {
     else if(clicked.is('.direction-rest')){
       $("#commandList").append($("<div class='list-group-item tinted' data-direction='Rest' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> Rest " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
     }
+    else if (clicked.is('.freq-10')) {
+      $("#commandList").append($("<div class='list-group-item tinted' data-direction='10Hz' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> 10 Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    }
+    else if (clicked.is('.freq-12')) {
+      $("#commandList").append($("<div class='list-group-item tinted' data-direction='12Hz' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> 12 Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    }
+    else if (clicked.is('.freq-15')) {
+      $("#commandList").append($("<div class='list-group-item tinted' data-direction='15Hz' data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> 15 Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    }
     else{
-
-      // var loop = $("#loop").prop("checked") //returns true or false!
-      //if 'else', must be collect!
 
       //Amount of elements in the queue
 
       //Flashes bright green briefly
       if((count != 0) && !$( "#btn-collect" ).hasClass( "btn-danger" )){ //Non empty list and not already clicked
-          var queue = [];
-          var count = $("#commandList div").length;
           trialName = $('#trial-name').val();
           $('#btn-collect').toggleClass('btn-danger');
           $('#btn-collect').html("Stop &nbsp;<i class='fas fa-stop fa-sm text-white'></i>");
+
+
+          var queue = currentProtocol;
+          var count = queue.length;
+
+          /* removing this because queue was moved to Settings page
+          var queue = [];
+          var count = $("#commandList div").length;
           //For each element in the queue, push their direction and duration
           $('#commandList').children('div').each(function () {
               var itemDuration = $(this).data("duration");
               var itemDirection = $(this).data("direction")
               queue.push([itemDirection, itemDuration]);
-        });
 
-        // if(loop){
-        //   queue.push(["loop", 0]);
-        // }
+            });
+          */
 
         //Finally emits a collectQueue!
 
         //Gives the queue array with the direcions/durations and active sensors
-        socket.emit("collectQueue", {queue: queue, sensors: active, trialName: trialName});//, loop: loop});
+        socket.emit("collectQueue", {queue: queue, sensors: active, trialName: trialName});
 
         let totalTime = 0;
         let times = [];
@@ -157,7 +154,7 @@ $(document).ready(function() {
 
   });
 
-  // loop button implementation
+  // loop button
   $(".loop-btn").click(function() {
     console.log("Loop button clicked")
 
@@ -176,6 +173,7 @@ $(document).ready(function() {
     }
   });
 
+
   /* copied from server.js */
   /* Gets the current time */
   function getTimeValue() {
@@ -185,4 +183,73 @@ $(document).ready(function() {
     return Time;
   }
 
+  $(".load-custom").click(function() {
+    clearList('#currentProtocol');
+
+    var protocol = [];
+
+    $('#commandList').children('div').each(function () {
+        var itemDuration = $(this).data("duration");
+        var itemDirection = $(this).data("direction")
+        protocol.push([itemDirection, itemDuration]);
+    });
+
+    socket.emit('protocolChanged', protocol);
+  })
+
+  // clear button (from 'Customize Protocol')
+  $(".clear-btn").click(function() {
+    clearList("#commandList");
+  });
+
+  // load a default protocol
+  $(".load-default").click(function() {
+
+    // first clear current protocol space
+    clearList("#currentProtocol");
+
+    // get protocol type
+    var protocolName = $(this).attr("protocol-name");
+    console.log(protocolName);
+
+    // send request to server
+    socket.emit("requestDefaultProtocol", protocolName);
+  })
+
+  // send current protocol to server whenever user refreshes/changes page
+  $(window).on("beforeunload", function() {
+    var protocol = [];
+
+    $('#currentProtocol').children('div').each(function () {
+        var itemDuration = $(this).data("duration");
+        var itemDirection = $(this).data("direction")
+        protocol.push([itemDirection, itemDuration]);
+    });
+
+    socket.emit('protocolChanged', protocol);
+  });
+
+  // load current protocol
+  socket.on('currentProtocol', function(protocol) {
+    currentProtocol = protocol;
+    generateList(protocol);
+  });
+
 });
+
+// function that displays current protocol
+function generateList(protocol) {
+  for (var i = 0; i < protocol.length; i++) {
+    var direction = protocol[i][0];
+    var duration = protocol[i][1];
+
+    // do not allow user to modify protocol
+    $("#currentProtocol").append($("<div class='list-group-item tinted list-training' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
+  }
+}
+
+function clearList(id) {
+  $(id + " div").each(function() {
+    $(this).remove();
+  });
+}
