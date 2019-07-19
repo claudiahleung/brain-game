@@ -25,7 +25,6 @@ var duration = 0;
 var direction = "none";
 var active = [];
 var collectionTimer=null;
-var loop = false;
 var trialName = null;
 var timeTesting = getTimeValue();
 var numSamples = 0;
@@ -93,12 +92,20 @@ app_express.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
+app_express.get('/trainer', (req, res) => {
+  res.sendFile(path.join(__dirname + '/public/trainer.html'));
+});
+
 app_express.get('/production', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/production.html'));
 });
 
 app_express.get('/game', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/game.html'));
+});
+
+app_express.get('/settings', (req, res) => {
+  res.sendFile(path.join(__dirname + '/public/settings.html'));
 });
 
 console.log('Listening on Port 3000!')
@@ -257,7 +264,6 @@ io.on('connection', function(socket){
     timeSamples = [timeHeaderToWrite];
     collectQueue = clientRequest['queue'];
     trialName = clientRequest['trialName'];
-    loop = clientRequest['loop'];
     console.log(collectQueue);
     console.log("This is trial: " + trialName);
 
@@ -293,15 +299,7 @@ io.on('connection', function(socket){
           endTest(true, true);
 
           console.log("Trial over.");
-          if(loop == true){
-              time = 0;
-              collecting = true;
-              j = 0;
-              direction = collectQueue[0][0];
-          }
-          else{
-              clearInterval(collectionTimer);
-          }
+          clearInterval(collectionTimer);
         }
         time++;
     }, 1000);
@@ -309,8 +307,6 @@ io.on('connection', function(socket){
   });
 
   // Production
-
-
   //
   // socket.on("from sensors", function(data){
   //   // data: {front, left, right, front-tilt}
@@ -481,4 +477,69 @@ io.on('connection', function(socket){
     // var process = spawn('python',["../real_time_ML.py"]);
     // console.log('spawned')
   });
+
+
+  socket.on('incomingTimestamps', function(timestamps_cues) {
+
+    let date = new Date();
+    var filename = 'data/timestamps-' + date.getFullYear() + '-' + (date.getMonth()+1) + '-' +
+                   date.getDate() + '-' + date.getHours() + '-' +
+                   date.getMinutes() + '-' + date.getSeconds() + '.json';
+
+    fs.writeFile(filename, JSON.stringify(timestamps_cues), function(err) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('timestamps + labels saved');
+      }
+    })
+
+  })
+
+  socket.on('requestCurrentProtocol', function() {
+    // send current protocol
+    socket.emit('currentProtocol', currentProtocol);
+  })
+
+  socket.on('requestDefaultProtocol', function(protocolName) {
+    currentProtocol = defaultProtocols[protocolName];
+    socket.emit('currentProtocol', currentProtocol);
+  })
+
+  socket.on('protocolChanged', function(protocol) {
+    currentProtocol = protocol;
+    socket.emit('currentProtocol', currentProtocol);
+    })
+
 });
+
+/*
+Generate default data collection protocols
+*/
+protocolFile = "default_protocols.json";
+var defaultProtocols = {
+  defaultAll: [],
+  defaultMu: [],
+  defaultSSVEP: []
+};
+// default mu queue
+var directionsMu = ['Left', 'Rest', 'Right'];
+var durationMu = 20;
+// default SSVEP queue
+var frequenciesSSVEP = ['10Hz', '12Hz', '15Hz'];
+var durationSSVEP = 8;
+
+for (var i = 0; i < 2; i++) {
+  for (var j = 0; j < directionsMu.length; j++) {
+    defaultProtocols["defaultAll"].push([directionsMu[j], durationMu]);
+    defaultProtocols["defaultMu"].push([directionsMu[j], durationMu]);
+  }
+}
+for (var i = 0; i < 3; i++) {
+  for (var j = 0; j < directionsMu.length; j++) {
+    defaultProtocols["defaultAll"].push([frequenciesSSVEP[j], durationSSVEP]);
+    defaultProtocols["defaultSSVEP"].push([frequenciesSSVEP[j], durationSSVEP]);
+  }
+}
+// load default mu + SSVEP protocol
+currentProtocol = defaultProtocols["defaultAll"];

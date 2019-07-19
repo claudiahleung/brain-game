@@ -31,7 +31,7 @@
     <ul class="navbar-nav bg-gradient-primary sidebar toggled sidebar-dark accordion" id="accordionSidebar">
 
       <!-- Sidebar - Brand -->
-      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
         <div class="sidebar-brand-icon">
           <img src="assets/img/mcgill-neurotech-white.png" alt="McGill Neurotech logos" width="50px">
         </div>
@@ -40,14 +40,22 @@
       <!-- Divider -->
       <hr class="sidebar-divider my-0">
 
-      <!-- Nav Item - Dashboard -->
+      <!-- Nav Item - Training -->
       <li class="nav-item active">
         <a class="nav-link" href="/">
           <i class="fas fa-fw fa-brain"></i>
           <span>Training</span></a>
       </li>
 
-      <!-- Nav Item - Pages Collapse Menu -->
+      <!-- Nav Item - Trainer -->
+      <li class="nav-item">
+        <a class="nav-link" href="/trainer">
+          <i class="fas fa-fw fa-brain"></i>
+          <span>Trainer</span>
+        </a>
+      </li>
+
+      <!-- Nav Item - Production -->
       <li class="nav-item">
         <a class="nav-link" href="/production">
           <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -55,17 +63,17 @@
         </a>
       </li>
 
-      <!-- Nav Item - Games Collapse Menu -->
+      <!-- Nav Item - Game -->
       <li class="nav-item">
-          <a class="nav-link" href="/game">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Game</span>
-          </a>
-        </li>
+        <a class="nav-link" href="/game">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Game</span>
+        </a>
+      </li>
 
-      <!-- Nav Item - Utilities Collapse Menu -->
+      <!-- Nav Item - Settings -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#">
+        <a class="nav-link" href="/settings">
           <i class="fas fa-fw fa-wrench"></i>
           <span>Settings</span>
         </a>
@@ -109,41 +117,6 @@
                 <!-- </div> -->
               <!-- </div> -->
             </div>
-
-
-            <!-- Earnings (Monthly) Card Example -->
-            <!-- <div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Noise (Hz)</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">4,000</div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-bug fa-2x text-gray-300"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-xl-3 col-md-4 mb-4">
-              <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Sample Rate (per second)</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">250</div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-stopwatch fa-2x text-gray-300"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> -->
-
           </div>
 
           <!-- Content Row -->
@@ -168,61 +141,6 @@
               </div>
 
             </div>
-
-            <!-- Queue -->
-            <div class="col-xl-3 col-lg-3 col-md-4">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Queue</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                  <div id="commandList" class="list-group col">
-                      <div class="list-group-item tinted" data-direction="Left" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Left 10s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                      <div class="list-group-item tinted" data-direction="Right" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Right 10s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                      <div class="list-group-item tinted" data-direction="Rest" data-duration="10"><i class="fas fa-arrows-alt handle"></i> Rest 10s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Add to Queue -->
-            <div class="col-xl-3 col-lg-3 col-md-4">
-              <div class="card shadow mb-4" style="z-index: 1">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                  <h6 class="m-0 font-weight-bold text-primary">Add to Queue</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                  <!-- Duration -->
-                  <div class="input-group mb-3">
-                      <div class="input-group-prepend">
-                          <span class="input-group-text" id="basic-addon1">Seconds</span>
-                      </div>
-                          <input type="text" class="form-control timer" placeholder="Enter duration here..." aria-label="Enter duration here.." aria-describedby="basic-addon1" value=10>
-                  </div>
-                      <!-- Buttons to add elements to the queue -->
-                      <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
-                          <button class="selection btn btn-outline-secondary direction-left">Left</button>
-                          <button class="selection btn btn-outline-secondary direction-rest">Rest</button>
-                          <button class="selection btn btn-outline-secondary direction-right">Right</button>
-                      </div>
-                      <div class="custom-control custom-checkbox mb-3">
-                          <input type="checkbox" class="custom-control-input" id="customControlValidation1" required>
-                          <label class="custom-control-label" for="customControlValidation1">Loop</label>
-                          <div class="invalid-feedback">Example invalid feedback text</div>
-                        </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-          <!-- End of row -->
-
-          <!-- Content Row -->
-          <div class="row">
 
             <!-- Movement -->
             <div class="col-xl-6 col-lg-6 col-md-6">
@@ -259,7 +177,30 @@
               </div>
             </div>
 
+          </div>
+          <!-- End of row -->
+
+          <!-- Content Row -->
+          <div class="row">
+
+            <!-- Current Protocol -->
+            <div class="col-xl-3 col-lg-3 col-md-4">
+              <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Current Protocol</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                  <div id="currentProtocol" class="list-group col">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Neurofeedback -->
+            <!--
             <div class="col-xl-6 col-lg-6 col-md-6 mb-4">
               <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -269,7 +210,7 @@
                   <canvas id="neurofeedback"></canvas>
                 </div>
               </div>
-            </div>
+            </div-->
 
           <!-- End of row -->
           </div>
@@ -318,31 +259,13 @@
   <!-- P5 JS DOM -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/addons/p5.dom.js"></script>
 
-  <!-- Neurofeedback -->
-  <script src="assets/js/neurofeedback.js"></script>
-
   <!-- Spectrogram -->
   <script src="assets/js/spectrogram.js"></script>
 
   <script>
     var socket = io();
     socket.emit('production', {on: false});
-  </script>
-  <script>
-
-    var left = document.getElementById('commandList');
-
-    new Sortable(left, {
-      group: {
-          name: 'shared',
-          handle: '.handle', // To clone: set pull to 'clone'
-          put: false
-      },
-      animation: 150,
-      sort: true,
-      handle: '.handle'
-  });
-
+    socket.emit('requestCurrentProtocol');
   </script>
 
 </body>
