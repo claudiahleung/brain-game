@@ -68,6 +68,10 @@ $(document).ready(function() {
               $('#think-' + direction).addClass('button-off');
               direction = queue[j][0];
               timestamps_cues.push({'time':getTimeValue(), 'cue':direction}) // save timestamp
+
+              // update queue (removes first element, does not change current protocol)
+              $('#currentProtocol div')[0].remove();
+
               $('#think-' + direction).removeClass('button-off');
               $('#think-' + direction).addClass('button-on'); //Setup direction again
             }
