@@ -157,7 +157,7 @@ canvas {
   min-height: 300px;
 }
 
-#commandList{
+.command-list {
 	margin-bottom: 10px;
 }
 

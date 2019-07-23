@@ -19,7 +19,20 @@ $(document).ready(function() {
       $('#btn-collect').toggleClass('btn-danger');
       $('#btn-collect').html("Stop &nbsp;<i class='fas fa-stop fa-sm text-white'></i>");
 
-      var queue = currentProtocol;
+      // set up queue variable
+      var queue = [];
+      for (var i = 0; i < currentProtocol.length; i++) {
+        if (currentProtocol[i][2] == "mu") {
+          queue.push(currentProtocol[i]); // leave element as is
+        }
+        // unwrap SSVEP elements
+        else if (currentProtocol[i][2] == "ssvep") {
+          queue.push(["RestSSVEP", currentProtocol[i][1][0], "ssvep"]);
+          queue.push(["Cue", currentProtocol[i][1][1], "ssvep"]);
+          queue.push([currentProtocol[i][0] + "Hz", currentProtocol[i][1][2], "ssvep"]); // stimulus frequency and duration
+        }
+      }
+
       var count = queue.length;
 
       //Finally emits a collectQueue!
@@ -36,8 +49,10 @@ $(document).ready(function() {
           times = [5, 10, 20]
       */
       queue.forEach(function(command){
-        totalTime+=command[1];
-        times.push(totalTime);
+        if (command[2] == "mu") {
+          totalTime+=command[1];
+          times.push(totalTime);
+        }
       });
 
 
@@ -130,11 +145,22 @@ function getTimeValue() {
 // function that displays current protocol
 function generateList(protocol) {
   for (var i = 0; i < protocol.length; i++) {
-    var direction = protocol[i][0];
-    var duration = protocol[i][1];
+    var type = protocol[i][2];
 
-    // do not allow user to modify protocol
-    $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
+    if (type == "mu") {
+      var direction = protocol[i][0];
+      var duration = protocol[i][1];
+
+      // do not allow user to modify protocol
+      $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
+    }
+    else if (type == "ssvep") {
+      var freq = protocol[i][0];
+      var times = protocol[i][1];
+      var duration = times.reduce((a, b) => a + b, 0); // sum of all three times
+
+      $("#currentProtocol").append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + times + "'> " + freq + "Hz " + duration + "s &nbsp; </div>"));
+    }
   }
 }
 
