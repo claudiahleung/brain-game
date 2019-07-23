@@ -68,12 +68,9 @@ $(document).ready(function() {
               $('#think-' + direction).addClass('button-off');
               direction = queue[j][0];
               timestamps_cues.push({'time':getTimeValue(), 'cue':direction}) // save timestamp
-
-              // update queue (removes first element, does not change current protocol)
-              $('#currentProtocol div')[0].remove();
-
               $('#think-' + direction).removeClass('button-off');
               $('#think-' + direction).addClass('button-on'); //Setup direction again
+              updateQueue();
             }
             //If we're not at end of duration, decrement time
             durationLeft = times[j] - time;
@@ -90,6 +87,7 @@ $(document).ready(function() {
               $('#think-' + direction).addClass('button-off');
               $('#collectTime').html("&nbsp;");
               clearInterval(collectionTimer);
+              updateQueue();
           }
       }, 1000);
 
@@ -138,4 +136,9 @@ function generateList(protocol) {
     // do not allow user to modify protocol
     $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
   }
+}
+
+// removes first element of queue without changing current protocol
+function updateQueue() {
+  $('#currentProtocol div')[0].remove();
 }
