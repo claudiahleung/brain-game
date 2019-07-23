@@ -6,7 +6,6 @@ $(document).ready(function() {
   var active = [1,1,1,1,1,1,1,1];
   //Made global so stop button can clear it
   var collectionTimer = null;
-  var currentProtocol = [];
 
   //To remove an element from the queue
   $("#commandList").on("click",".remove",function(){
@@ -45,9 +44,9 @@ $(document).ready(function() {
    * Protocol Management
    */
 
+   // update current protocol
    socket.on('currentProtocol', function(protocol) {
-     currentProtocol = protocol;
-     generateList(currentProtocol);
+     generateList(protocol);
    })
 
   // loop button
@@ -103,19 +102,6 @@ $(document).ready(function() {
     // send request to server
     socket.emit("requestDefaultProtocol", protocolName);
   })
-
-  // send current protocol to server whenever user refreshes/changes page
-  $(window).on("beforeunload", function() {
-    var protocol = [];
-
-    $('#currentProtocol').children('div').each(function () {
-        var itemDuration = $(this).data("duration");
-        var itemDirection = $(this).data("direction")
-        protocol.push([itemDirection, itemDuration]);
-    });
-
-    socket.emit('protocolChanged', protocol);
-  });
 
 });
 
