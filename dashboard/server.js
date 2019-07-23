@@ -502,12 +502,16 @@ io.on('connection', function(socket){
   })
 
   socket.on('requestDefaultProtocol', function(protocolName) {
+    // change current protocol to one of the default ones
     currentProtocol = defaultProtocols[protocolName];
+    // send current protocol
     socket.emit('currentProtocol', currentProtocol);
   })
 
   socket.on('protocolChanged', function(protocol) {
+    // update current protocol
     currentProtocol = protocol;
+    // send current protocol
     socket.emit('currentProtocol', currentProtocol);
     })
 
@@ -522,24 +526,27 @@ var defaultProtocols = {
   defaultMu: [],
   defaultSSVEP: []
 };
-// default mu queue
+// default mu queue settings
 var directionsMu = ['Left', 'Rest', 'Right'];
 var durationMu = 20;
-// default SSVEP queue
-var frequenciesSSVEP = ['10Hz', '12Hz', '15Hz'];
-var durationSSVEP = 8;
+// default SSVEP queue settings
+var frequenciesSSVEP = [10, 12, 15];
+var timesSSVEP = [1,2,5];
 
+// generate mu cues
 for (var i = 0; i < 2; i++) {
   for (var j = 0; j < directionsMu.length; j++) {
-    defaultProtocols["defaultAll"].push([directionsMu[j], durationMu]);
-    defaultProtocols["defaultMu"].push([directionsMu[j], durationMu]);
+    defaultProtocols["defaultAll"].push([directionsMu[j], durationMu, "mu"]);
+    defaultProtocols["defaultMu"].push([directionsMu[j], durationMu, "mu"]);
   }
 }
+// generate SSVEP cues
 for (var i = 0; i < 3; i++) {
   for (var j = 0; j < directionsMu.length; j++) {
-    defaultProtocols["defaultAll"].push([frequenciesSSVEP[j], durationSSVEP]);
-    defaultProtocols["defaultSSVEP"].push([frequenciesSSVEP[j], durationSSVEP]);
+    defaultProtocols["defaultAll"].push([frequenciesSSVEP[j], timesSSVEP, "ssvep"]);
+    defaultProtocols["defaultSSVEP"].push([frequenciesSSVEP[j], timesSSVEP, "ssvep"]);
   }
 }
 // load default mu + SSVEP protocol
 currentProtocol = defaultProtocols["defaultAll"];
+console.log(defaultProtocols);

@@ -25,17 +25,14 @@
   margin-bottom: 0;
 }
 
-.list-training {
-  text-align: center;
-}
-
-#commandList {
+.command-list {
   width: 100%;
   height: 230px;
   overflow-y: scroll;
 }
 
 #currentProtocol {
+  text-align: center;
   width: 100%;
   height: 230px;
   overflow-y: scroll;
