@@ -527,8 +527,8 @@ var defaultProtocols = {
   defaultSSVEP: []
 };
 // default mu queue settings
-var directionsMu = ['Left', 'Rest', 'Right'];
-var durationMu = 20;
+var directionsMu = ['Rest', 'Left', 'Right'];
+var durationMu = 30;
 // default SSVEP queue settings
 var frequenciesSSVEP = [10, 12, 15];
 var timesSSVEP = [1,2,5];
@@ -548,5 +548,4 @@ for (var i = 0; i < 3; i++) {
   }
 }
 // load default mu + SSVEP protocol
-currentProtocol = defaultProtocols["defaultAll"];
-console.log(defaultProtocols);
+currentProtocol = defaultProtocols["defaultMu"];
