@@ -7,8 +7,7 @@ $(document).ready(function() {
   //Made global so stop button can clear it
   var collectionTimer = null;
 
-  // load default elements in Custom Protocol
-
+  initializeCustomProtocol();
 
   //To remove an element from the queue
   $(".remove").on("click",function(){
@@ -19,33 +18,31 @@ $(document).ready(function() {
 
   // add element to queue
   $(".add-mu").click(function() {
-    var clicked = $(this);
     var duration = $("#timeMu").val();
-    var direction = clicked.data("direction");
+    var direction = $(this).data("direction");
 
-    $("#listMu").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> " + direction + " " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    addElement([direction, duration, "mu"], "#listMu", true);
   })
 
   $(".add-ssvep").click(function() {
-    var xlixked = $(this);
     var timeRest = int($("#timeRest").val());
     var timeCue = int($("#timeCue").val());
     var timeStim = int($("#timeStim").val());
-    var times = [timeRest, timeCue, timeStim];
-    var duration = times[0] + "-" + times[1] + "-" + times[2];
     var freq = int($(this).data("freq"));
 
-    $("#listSSVEP").append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + JSON.stringify(times) + "'><i class='fas fa-arrows-alt handle'></i> " + freq + "Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    addElement([freq, [timeRest, timeCue, timeStim], "ssvep"], "#listSSVEP", true);
   })
 
   /*
    * Protocol Management
    */
 
-   // update current protocol
-   socket.on('currentProtocol', function(protocol) {
-     generateList(protocol);
-   })
+   // display current protocol
+    socket.on('currentProtocol', function(protocol) {
+      for (var i = 0; i < protocol.length; i++) {
+        addElement(protocol[i], "#currentProtocol", false);
+      }
+    })
 
    // load button (from 'Load Default Protocol')
    $(".load-default").click(function() {
@@ -135,30 +132,62 @@ $(document).ready(function() {
  * Functions
  */
 
-// function that displays current protocol
-function generateList(protocol) {
-  for (var i = 0; i < protocol.length; i++) {
-    var type = protocol[i][2];
+// loads default elements in Custom Protocol and sets default settings in Create Custom Protocol
+function initializeCustomProtocol() {
+  // load default elements in Custom Protocol
+  var directionsMu = ['Rest', 'Left', 'Right'];
+  var durationMu = 20;
+  var frequenciesSSVEP = [10, 12, 15];
+  var timesSSVEP = [1,2,5];
 
-    if (type == "mu") {
-      var direction = protocol[i][0];
-      var duration = protocol[i][1];
+  // mu elements
+  for (var i = 0; i < directionsMu.length; i++) {
+    addElement([directionsMu[i], durationMu, "mu"], "#listMu", true);
+  }
+  // SSVEP elements
+  for (var i = 0; i < directionsMu.length; i++) {
+    addElement([frequenciesSSVEP[i], timesSSVEP, "ssvep"], "#listSSVEP", true);
+  }
 
-      // do not allow user to modify protocol
-      $("#currentProtocol").append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
+  // set default settings in Create Custom Protocol
+  $("#timeMu").val(durationMu);
+  $("#loopTimesMu").val(3);
+  $("#timeRest").val(timesSSVEP[0]);
+  $("#timeCue").val(timesSSVEP[1]);
+  $("#timeStim").val(timesSSVEP[2]);
+  $("#loopTimesSSVEP").val(5);
+}
+
+// Adds protocol element to list
+function addElement(element, id, changeable) {
+  // element must be of form [label, time, type]
+  var type = element[2];
+
+  if (type == "mu") {
+    var direction = element[0];
+    var duration = element[1];
+
+    if (changeable) {
+      $(id).append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'><i class='fas fa-arrows-alt handle'></i> " + direction + " " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    } else {
+      $(id).append($("<div class='list-group-item tinted' data-direction=" + direction + " data-duration='" + duration + "'>" + direction + " " + duration + "s &nbsp; </div>"));
     }
-    else if (type == "ssvep") {
-      var freq = protocol[i][0];
-      var times = protocol[i][1];
-      var duration = times[0] + "-" + times[1] + "-" + times[2];
+  } else if (type == "ssvep") {
+    var freq = element[0];
+    var times = element[1];
+    var duration = times[0] + "-" + times[1] + "-" + times[2];
 
-      // do not allow user to modify protocol
-      $("#currentProtocol").append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + times + "'> " + freq + "Hz " + duration + "s &nbsp; </div>"));
+    if (changeable) {
+      $(id).append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + JSON.stringify(times) + "'><i class='fas fa-arrows-alt handle'></i> " + freq + "Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+    } else {
+      $(id).append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + times + "'> " + freq + "Hz " + duration + "s &nbsp; </div>"));
     }
+  } else {
+    console.log("invalid type");
   }
 }
 
-// function that clears list (id should be either #currentProtocol or #commandList)
+// function that clears list (id should be either #currentProtocol or #listMu or #listSSVEP)
 function clearList(id) {
   $(id + " div").each(function() {
     $(this).remove();

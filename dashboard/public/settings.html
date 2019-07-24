@@ -156,7 +156,7 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text" id="basic-addon1">Duration</span>
                       </div>
-                      <input type="text" class="form-control" id="timeMu" aria-label="Enter duration here.." aria-describedby="basic-addon1" value=20>
+                      <input type="text" class="form-control" id="timeMu" aria-describedby="basic-addon1">
                     </div>
                     <!-- left/right/rest buttons -->
                     <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
@@ -169,7 +169,7 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text">Loop</span>
                       </div>
-                        <input type="text" id="loopTimesMu" class="form-control" value=2>
+                        <input type="text" id="loopTimesMu" class="form-control">
                       <div class="input-group-append">
                         <button class="loop-mu btn btn-outline-secondary">Apply</button>
                       </div>
@@ -188,9 +188,9 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text">Rest/Cue/Stim</span>
                       </div>
-                      <input type="text" id="timeRest" class="form-control" value=1>
-                      <input type="text" id="timeCue" class="form-control" value=2>
-                      <input type="text" id="timeStim" class="form-control" value=5>
+                      <input type="text" id="timeRest" class="form-control">
+                      <input type="text" id="timeCue" class="form-control">
+                      <input type="text" id="timeStim" class="form-control">
                     </div>
                     <!-- SSVEP frequency buttons-->
                     <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
@@ -203,7 +203,7 @@
                       <div class="input-group-prepend">
                         <span class="input-group-text">Loop</span>
                       </div>
-                        <input type="text" id="loopTimesSSVEP" class="form-control" value=3>
+                        <input type="text" id="loopTimesSSVEP" class="form-control">
                       <div class="input-group-append">
                         <button class="loop-ssvep btn btn-outline-secondary">Apply</button>
                       </div>
@@ -226,16 +226,12 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
+                  <!-- Custom Mu Protocol -->
                   <div id="listMu" class="command-list list-group col">
-                      <div class="list-group-item tinted" data-direction="Rest" data-duration="30"><i class="fas fa-arrows-alt handle"></i> Rest 30s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                      <div class="list-group-item tinted" data-direction="Left" data-duration="30"><i class="fas fa-arrows-alt handle"></i> Left 30s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                      <div class="list-group-item tinted" data-direction="Right" data-duration="30"><i class="fas fa-arrows-alt handle"></i> Right 30s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
                   </div>
                   <hr>
+                  <!-- Custom SSVEP Protocol -->
                   <div id="listSSVEP" class="command-list list-group col">
-                      <div class="list-group-item tinted" data-freq="10" data-times="[1,2,5]"><i class="fas fa-arrows-alt handle"></i> 10Hz 1-2-5s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                      <div class="list-group-item tinted" data-freq="12" data-times="[1,2,5]"><i class="fas fa-arrows-alt handle"></i> 12Hz 1-2-5s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
-                      <div class="list-group-item tinted" data-freq="15" data-times="[1,2,5]"><i class="fas fa-arrows-alt handle"></i> 15Hz 1-2-5s &nbsp;<a href='#' class='remove'><i class="fas fa-times-circle"></i></a></div>
                   </div>
                   <hr>
                   <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
