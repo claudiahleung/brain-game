@@ -32,7 +32,7 @@ $(document).ready(function() {
     var timeCue = int($("#timeCue").val());
     var timeStim = int($("#timeStim").val());
     var times = [timeRest, timeCue, timeStim];
-    var duration = times.reduce((a, b) => a + b, 0); // sum of all three times
+    var duration = times[0] + "-" + times[1] + "-" + times[2];
     var freq = int($(this).data("freq"));
 
     $("#listSSVEP").append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + JSON.stringify(times) + "'><i class='fas fa-arrows-alt handle'></i> " + freq + "Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
@@ -150,8 +150,9 @@ function generateList(protocol) {
     else if (type == "ssvep") {
       var freq = protocol[i][0];
       var times = protocol[i][1];
-      var duration = times.reduce((a, b) => a + b, 0); // sum of all three times
+      var duration = times[0] + "-" + times[1] + "-" + times[2];
 
+      // do not allow user to modify protocol
       $("#currentProtocol").append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + times + "'> " + freq + "Hz " + duration + "s &nbsp; </div>"));
     }
   }

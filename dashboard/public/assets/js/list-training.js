@@ -157,8 +157,9 @@ function generateList(protocol) {
     else if (type == "ssvep") {
       var freq = protocol[i][0];
       var times = protocol[i][1];
-      var duration = times.reduce((a, b) => a + b, 0); // sum of all three times
+      var duration = times[0] + "-" + times[1] + "-" + times[2];
 
+      // do not allow user to modify protocol
       $("#currentProtocol").append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + times + "'> " + freq + "Hz " + duration + "s &nbsp; </div>"));
     }
   }
