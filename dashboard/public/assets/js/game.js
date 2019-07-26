@@ -6,7 +6,7 @@ const p5BrainGame = new p5(sketch => {
     gapWidth: 15 * UNIT,
     floorHeight: 3 * UNIT,
     floorSpeed: UNIT / 6,
-    bgColor: 'blue',
+    bgColor: 'purple',
     horizontalSpeed: UNIT / 2,
     verticalSpeed: UNIT / 3,
   };
@@ -62,7 +62,7 @@ const p5BrainGame = new p5(sketch => {
       }
       if (player.y - player.radius > this.y && !this.passed) {
         this.passed = true;
-        state.score += 10; 
+        state.score += 10;
       }
     }
   }
