@@ -6,7 +6,7 @@ const p5BrainGame = new p5(sketch => {
     gapWidth: 15 * UNIT,
     floorHeight: 3 * UNIT,
     floorSpeed: UNIT / 6,
-    bgColor: 'green',
+    bgColor: 'blue',
     horizontalSpeed: UNIT / 2,
     verticalSpeed: UNIT / 3,
   };
