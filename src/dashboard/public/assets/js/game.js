@@ -7,7 +7,7 @@ const p5BrainGame = new p5(sketch => {
     floorHeight: 3 * UNIT,
     floorSpeed: UNIT / 3,
     bgColor: 220,
-    horizontalSpeed: UNIT / 2,
+    horizontalSpeed: UNIT,
     verticalSpeed: UNIT / 3,
   };
 
@@ -20,6 +20,7 @@ const p5BrainGame = new p5(sketch => {
       vy: config.verticalSpeed,
     },
     floors: [],
+    floorSpeed: UNIT / 3,
     score: 0,
   };
 
@@ -33,7 +34,7 @@ const p5BrainGame = new p5(sketch => {
     }
 
     update() {
-      this.y -= config.floorSpeed;
+      this.y -= state.floorSpeed;
     }
 
     draw() {
@@ -62,7 +63,8 @@ const p5BrainGame = new p5(sketch => {
       }
       if (player.y - player.radius > this.y && !this.passed) {
         this.passed = true;
-        state.score += 10; 
+        state.score += 10;
+	state.floorSpeed = state.score / 10;  
       }
     }
   }
@@ -72,6 +74,7 @@ const p5BrainGame = new p5(sketch => {
     state.player.x = sketch.width / 2;
     state.player.y = sketch.height /2;
     state.score = 0;
+    state.floorSpeed = UNIT / 3
   };
 
 

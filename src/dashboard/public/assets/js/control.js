@@ -1,6 +1,6 @@
 $(document).ready(function() {
   // For production dashboard
-  var soundStop = new Audio('assets/sound/stop.wav');
+  var soundStop = new Audio('assets/sound/stop.mp3');
   var soundForward = new Audio('assets/sound/forward.wav');
 
   $('#startProduction').on('click', function(){
