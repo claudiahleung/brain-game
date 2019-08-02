@@ -178,9 +178,9 @@ function addElement(element, id, changeable) {
     var duration = times[0] + "-" + times[1] + "-" + times[2];
 
     if (changeable) {
-      $(id).append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + times + "'><i class='fas fa-arrows-alt handle'></i> " + freq + "Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
+      $(id).append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + JSON.stringify(times) + "'><i class='fas fa-arrows-alt handle'></i> " + freq + "Hz " + duration + "s &nbsp; <a href='#' class='remove'><i class='fas fa-times-circle'></i></a></div>"));
     } else {
-      $(id).append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + times + "'> " + freq + "Hz " + duration + "s &nbsp; </div>"));
+      $(id).append($("<div class='list-group-item tinted' data-freq=" + freq + " data-times='" + JSON.stringify(times) + "'> " + freq + "Hz " + duration + "s &nbsp; </div>"));
     }
   } else {
     console.log("invalid type");
