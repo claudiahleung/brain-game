@@ -41,81 +41,130 @@ $(document).ready(function() {
 
       let totalTime = 0;
       let times = [];
+      let freq;
       /* Creates an array with cumulative times:
           Time 1: 5
           Time 2: 5
           Time 3: 10
 
           times = [5, 10, 20]
-      */
+          */
       queue.forEach(function(command){
         if (command[2] == "mu") {
           totalTime+=command[1];
           times.push(totalTime);
+        } if (command[2] === "ssvep") {
+          totalTime += command[1];
+          times.push(totalTime);
         }
       });
-
 
       direction = queue[0][0];
       //This is the direction of the first element
       let durationLeft = times[0] - 0;//Do we need - 0?
+      console.log('start', durationLeft);
+      console.log(times);
 
       // variable to save timestamps
       var timestamps_cues = [];
 
-      //Sets display to first elements command/time
-      console.log('think-' + direction)
-      timestamps_cues.push({'time':getTimeValue(), 'cue':direction}) // save first timestamp
-      $('#think-' + direction).removeClass('button-off');
-      $('#think-' + direction).addClass('button-on');
-      $('#collectTime').html(durationLeft + ' s');
+      // this function performs the next action in the queue
+
+      // //Sets display to first elements command/time
+      // console.log('think-' + direction);
+      // // save first timestamp
+      // timestamps_cues.push({'time':getTimeValue(), 'cue':direction})
+      // $('#think-' + direction).removeClass('button-off');
+      // $('#think-' + direction).addClass('button-on');
+      // $('#collectTime').html(durationLeft + ' s');
       let j = 0;
+      let commandCounter = 0;
       let time = 1;
+
+      const doNextCommand = function(first) {
+        if (!first) {
+          if (queue[commandCounter][2] === "mu") {
+            $('#think-' + direction).removeClass('button-on');
+            $('#think-' + direction).addClass('button-off');
+            updateQueue();
+          }
+          if (queue[commandCounter][2] === "ssvep") {
+            // check if last of current element in list
+            if (queue[commandCounter][0].substr(-1) === "z") {
+              updateQueue();
+            }
+          }
+          commandCounter++;
+        }
+        direction = queue[commandCounter][0];
+        console.log('next command');
+        console.log('think-' + direction);
+        // save first timestamp
+        timestamps_cues.push({'time':getTimeValue(), 'cue':direction})
+        if (queue[commandCounter][2] === "mu") {
+          $('#think-' + direction).removeClass('button-off');
+          $('#think-' + direction).addClass('button-on');
+          $('#collectTime').html(durationLeft + ' s');
+        } if (queue[commandCounter][2] === "ssvep") {
+          startSSVEPSession(queue[commandCounter],
+            commandCounter + 1 < queue.length ?
+              parseInt(queue[commandCounter + 1][0]) : NaN);
+        }
+      }
+
+      // startSSVEPSession(); // REMOVE; for debuging, must remove later!
+      console.log('before collectionTime'); //REMOVE
+      doNextCommand(true);
 
       //Controlling the timer.
       collectionTimer = setInterval(function(){
-          if (time < totalTime) {
-            if (time >= times[j]){
-              //This means we've gotten to the end of element j's duration
-              console.log("next command");
-              j += 1;
-              $('#think-' + direction).removeClass('button-on');
-              $('#think-' + direction).addClass('button-off');
-              direction = queue[j][0];
-              timestamps_cues.push({'time':getTimeValue(), 'cue':direction}) // save timestamp
-              $('#think-' + direction).removeClass('button-off');
-              $('#think-' + direction).addClass('button-on'); //Setup direction again
-              updateQueue();
-            }
-            //If we're not at end of duration, decrement time
-            durationLeft = times[j] - time;
+        console.log(times);
+        console.log(commandCounter, time, durationLeft);
+        if (time < totalTime) {
+          if (time >= times[commandCounter]){
+            doNextCommand(false);
+            // //This means we've gotten to the end of element j's duration
+            // console.log("next command", queue[commandCounter]);
+            // $('#think-' + direction).removeClass('button-on');
+            // $('#think-' + direction).addClass('button-off');
+            // direction = queue[j][0];
+            // // save timestamp
+            // timestamps_cues.push({'time':getTimeValue(), 'cue':direction})
+            // $('#think-' + direction).removeClass('button-off');
+            // //Setup direction again
+            // $('#think-' + direction).addClass('button-on');
+            // updateQueue();
+          }
+          // If we're not at end of duration, decrement time
+          durationLeft = times[commandCounter] - time;
 
-            $('#collectTime').html(durationLeft + ' s');
-            time++;
-          }
-          else {
-              timestamps_cues.push({'time':getTimeValue(), 'cue':'end'}) // save timestamp
-              socket.emit('incomingTimestamps', timestamps_cues)
-              $('#btn-collect').toggleClass('btn-danger');
-              $('#btn-collect').html("Collect &nbsp; <i class='fas fa-play fa-sm text-white'></i>");
-              $('#think-' + direction).removeClass('button-on');
-              $('#think-' + direction).addClass('button-off');
-              $('#collectTime').html("&nbsp;");
-              clearInterval(collectionTimer);
-              updateQueue();
-          }
+          $('#collectTime').html(durationLeft + ' s');
+          time++;
+        }
+        else {
+          timestamps_cues.push({'time':getTimeValue(), 'cue':'end'}) // save timestamp
+          socket.emit('incomingTimestamps', timestamps_cues);
+          $('#btn-collect').toggleClass('btn-danger');
+          $('#btn-collect').html("Collect &nbsp; <i class='fas fa-play fa-sm text-white'></i>");
+          $('#think-' + direction).removeClass('button-on');
+          $('#think-' + direction).addClass('button-off');
+          $('#collectTime').html("&nbsp;");
+          clearInterval(collectionTimer);
+          console.log('stop');
+          updateQueue();
+        }
       }, 1000);
 
     }
     else if($('#btn-collect').hasClass('btn-danger')){
-        console.log("danger danger");
-        clearInterval(collectionTimer);
-        socket.emit("stop");
-        $('#btn-collect').toggleClass('btn-danger');
-        $('#btn-collect').html("Collect &nbsp; <i class='fas fa-play fa-sm text-white'></i>");
-        $('#think-' + direction).removeClass('button-on');
-        $('#think-' + direction).addClass('button-off');
-        $('#collectTime').html("&nbsp");
+      console.log("danger danger");
+      clearInterval(collectionTimer);
+      socket.emit("stop");
+      $('#btn-collect').toggleClass('btn-danger');
+      $('#btn-collect').html("Collect &nbsp; <i class='fas fa-play fa-sm text-white'></i>");
+      $('#think-' + direction).removeClass('button-on');
+      $('#think-' + direction).addClass('button-off');
+      $('#collectTime').html("&nbsp");
     }
     else{
       console.log("Empty list nice try!");
@@ -123,13 +172,12 @@ $(document).ready(function() {
   });
 
   // display current protocol
-   socket.on('currentProtocol', function(protocol) {
-     currentProtocol = protocol;
-     for (var i = 0; i < currentProtocol.length; i++) {
-       addElement(currentProtocol[i], "#currentProtocol", false);
-     }
-   })
-
+  socket.on('currentProtocol', function(protocol) {
+    currentProtocol = protocol;
+    for (var i = 0; i < currentProtocol.length; i++) {
+      addElement(currentProtocol[i], "#currentProtocol", false);
+    }
+  })
 });
 
 /*
@@ -149,7 +197,7 @@ function addElement(element, id, changeable) {
   // element must be of form [label, time, type]
   var type = element[2];
 
-  if (type == "mu") {
+  if (type === "mu") {
     var direction = element[0];
     var duration = element[1];
 
