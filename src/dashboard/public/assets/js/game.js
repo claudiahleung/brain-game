@@ -5,7 +5,7 @@ const p5BrainGame = new p5(sketch => {
     floorDist: 25 * UNIT,
     gapWidth: 15 * UNIT,
     floorHeight: 3 * UNIT,
-    floorSpeed: UNIT / 3,
+    floorSpeed: UNIT / 5,
     bgColor: 220,
     horizontalSpeed: UNIT,
     verticalSpeed: UNIT / 3,
@@ -20,7 +20,7 @@ const p5BrainGame = new p5(sketch => {
       vy: config.verticalSpeed,
     },
     floors: [],
-    floorSpeed: UNIT / 3,
+    floorSpeed: config.floorSpeed,
     score: 0,
   };
 
@@ -43,14 +43,14 @@ const p5BrainGame = new p5(sketch => {
       sketch.rect(0, this.y, sketch.width, config.floorHeight);
       sketch.fill(config.bgColor);
       sketch.stroke(config.bgColor);
-      sketch.rect(this.x, this.y, config.gapWidth, config.floorHeight);
+      sketch.rect(this.x, this.y, config.gapWidth,          config.floorHeight);
       sketch.textSize(30);
       sketch.fill(0);
       sketch.text('Score: '+state.score, 10, 30);
     }
 
     isOutOfBounds() {
-      return this.y + config.floorHeight < 0;
+      return this.y + config.floorHeight <= 0;
     }
 
     collisionHandling() {
@@ -64,7 +64,7 @@ const p5BrainGame = new p5(sketch => {
       if (player.y - player.radius > this.y && !this.passed) {
         this.passed = true;
         state.score += 10;
-	state.floorSpeed = state.score / 10;  
+	      state.floorSpeed = config.floorSpeed + 0.5 * sketch.log(1 +  state.score / 20);  
       }
     }
   }
@@ -92,15 +92,21 @@ const p5BrainGame = new p5(sketch => {
   };
 
   sketch.keyPressed = () => {
-    if (sketch.keyIsDown(sketch.RIGHT_ARROW)) {
+    if (sketch.keyIsDown(sketch.RIGHT_ARROW) && !sketch.keyIsDown(sketch.LEFT_ARROW)) {
         player.vx = config.horizontalSpeed;
-    }  else if (sketch.keyIsDown(sketch.LEFT_ARROW)) {
+    }
+    if (sketch.keyIsDown(sketch.LEFT_ARROW) && !sketch.keyIsDown(sketch.RIGHT_ARROW)) {
         player.vx = -config.horizontalSpeed;
     }
   }
 
   sketch.keyReleased = () => {
-    player.vx = 0;
+    if (!sketch.keyIsDown(sketch.RIGHT_ARROW) &&             !sketch.keyIsDown(sketch.LEFT_ARROW))
+      player.vx = 0;
+    if (sketch.keyIsDown(sketch.RIGHT_ARROW))
+      player.vx = config.horizontalSpeed;
+    if (sketch.keyIsDown(sketch.LEFT_ARROW))
+      player.vx = -config.horizontalSpeed;
   }
 
   sketch.moveLeft = () => {
@@ -113,7 +119,7 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.update = () => {
     state.floors.forEach(floor => floor.update());
-    state.floors.filter(floor => !floor.isOutOfBounds());
+    state.floors = state.floors.filter(floor => !floor.isOutOfBounds());
     const lastFloor = state.floors[state.floors.length - 1];
 
     if (lastFloor.y < sketch.height - config.floorDist) {
