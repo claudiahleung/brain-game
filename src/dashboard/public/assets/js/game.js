@@ -50,7 +50,7 @@ const p5BrainGame = new p5(sketch => {
     }
 
     isOutOfBounds() {
-      return this.y + config.floorHeight < 0;
+      return this.y + config.floorHeight <= 0;
     }
 
     collisionHandling() {
@@ -107,7 +107,6 @@ const p5BrainGame = new p5(sketch => {
       player.vx = config.horizontalSpeed;
     if (sketch.keyIsDown(sketch.LEFT_ARROW))
       player.vx = -config.horizontalSpeed;
-    
   }
 
   sketch.moveLeft = () => {
@@ -120,7 +119,7 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.update = () => {
     state.floors.forEach(floor => floor.update());
-    state.floors.filter(floor => !floor.isOutOfBounds());
+    state.floors = state.floors.filter(floor => !floor.isOutOfBounds());
     const lastFloor = state.floors[state.floors.length - 1];
 
     if (lastFloor.y < sketch.height - config.floorDist) {
