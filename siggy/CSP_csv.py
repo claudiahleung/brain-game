@@ -58,73 +58,110 @@ if __name__ == "__main__":
     low = 7                                             #Bandpass filter lowcut frequency
     high = 30                                           #Bandpass filter highcut frequency
     order = 5                                           #Bandpass filter order
-    directories = sorted(glob('../data/*'))
-    files = sorted(glob(directories[3] + '/*.csv'))     #Search directory for csv data files
-    fname = files[0]                                    #Choose a file
-    
-    print(fname)
+    process_one_dataset = True
 
-    #Load data and labels
-    raw_eeg_data = np.genfromtxt(fname, delimiter=',', skip_header=1, usecols=[1,2,7,8]).T
-    labels = np.genfromtxt(fname, delimiter=',', skip_header=1, usecols=[9], dtype="|U5")
+    if process_one_dataset:
+        #Choose which directory and file to use
+        directories = sorted(glob('../data/*'))             
+        files = sorted(glob(directories[3] + '/*.csv'))
+        fname = files[4]
+        print(fname)
 
-    #Bandpass filter
-    nyq = 0.5 * fs
-    b, a = butter(order, [low / nyq, high / nyq], btype='band')
-    filtered_eeg_data = lfilter(b, a, raw_eeg_data)
-    
-#    CSP_values, CSP_filters = CSP(filtered_eeg_data, labels)
-    lrest, rrest, lr = CSP(filtered_eeg_data, labels)
+        #Load data and labels
+        raw_eeg_data = np.genfromtxt(fname, delimiter=',', skip_header=1, usecols=[1,2,7,8]).T
+        labels = np.genfromtxt(fname, delimiter=',', skip_header=1, usecols=[9], dtype="|U5")
+        
+        #Bandpass filter
+        nyq = 0.5 * fs
+        b, a = butter(order, [low / nyq, high / nyq], btype='band')
+        filtered_eeg_data = lfilter(b, a, raw_eeg_data)
+        
+        lrest, rrest, lr = CSP(filtered_eeg_data, labels)
+        
+        print('*****CSP Eigenvalues*****')
+        #Want the eigenvalues on the left to be close to 0, those on the right to be close to 1 (~0.5 is bad)
+        print('Left-Rest:', lrest[0])
+        print('Right-Rest:', rrest[0])
+        print('Left-Right:', lr[0])
+        
+#        #Uncomment these to print actual eigenvectors - they don't give any information though
+#        print('*****CSP Eigenvectors*****')
+#        print('*****Left-Rest*****')
+#        print(lrest[1])
+#        print('*****Right-Rest*****')
+#        print(rrest[1])
+#        print('*****Left-Right*****')
+#        print(lr[1])
 
-    print('*****CSP Eigenvalues*****')
-    print('Left-Rest:', lrest[0])
-    print('Right-Rest:', rrest[0])
-    print('Left-Right:', lr[0])
-    print('*****CSP Eigenvectors*****')
-    print('*****Left-Rest*****')
-    print(lrest[1])
-    print('*****Right-Rest*****')
-    print(rrest[1])
-    print('*****Left-Right*****')
-    print(lr[1])
+
+    else:
+        files = sorted(glob('../data/*/003*.csv'))
+        for fname in files:
+            print(fname)
+     
+            #Load data and labels
+            raw_eeg_data = np.genfromtxt(fname, delimiter=',', skip_header=1, usecols=[1,2,7,8]).T
+            labels = np.genfromtxt(fname, delimiter=',', skip_header=1, usecols=[9], dtype="|U5")
+     
+            #Bandpass filter
+            nyq = 0.5 * fs
+            b, a = butter(order, [low / nyq, high / nyq], btype='band')
+            filtered_eeg_data = lfilter(b, a, raw_eeg_data)
+
+            lrest, rrest, lr = CSP(filtered_eeg_data, labels)
+     
+            print('*****CSP Eigenvalues*****')
+            #Want the eigenvalues on the left to be close to 0, those on the right to be close to 1 (~0.5 is bad)
+            print('Left-Rest:', lrest[0])
+            print('Right-Rest:', rrest[0])
+            print('Left-Right:', lr[0])
+
+            #Uncomment these to print actual eigenvectors - they don't give any information though
+#            print('*****CSP Eigenvectors*****')
+#            print('*****Left-Rest*****')
+#            print(lrest[1])
+#            print('*****Right-Rest*****')
+#            print(rrest[1])
+#            print('*****Left-Right*****')
+#            print(lr[1])
     
 #The rest is data visualization, technically you can tell how well they're seperated from CSP_values
 #Ideally CSP_values[0] is really close to 0, CSP_values[1] is kind of close, CSP_values[2] is kind of close to 1, CSP_values[3] is really close
     
 #Scatter point graphs of bandpass-filtered and CSP-filtered eeg data with sibling channels paired together
 ###############################################################################
-    #Apply CSP 
-    for i, CSP_filters in enumerate([lrest[1], rrest[1], lr[1]]):
-        CSP_filtered_data = CSP_filters.T * np.matrix(filtered_eeg_data)
-#        plot_indices = sample([i for i in range(filtered_eeg_data.shape[1])], 100) #Plotting random samples for less clutter
-        plt.figure(i + 1)
-        
-        plt.subplot(411)
-        plt.title('Bandpass Filtered EEG Data Channels 1 and 4')
-        plt.xlabel('Channel 1')
-        plt.ylabel('Channel 8')
-        plt.plot(filtered_eeg_data[0], filtered_eeg_data[3], 'ro')
-        
-        plt.subplot(412)
-        plt.title('Bandpass Filtered EEG Data Channels 2 and 3')
-        plt.xlabel('Channel 2')
-        plt.ylabel('Channel 7')
-        plt.plot(filtered_eeg_data[1], filtered_eeg_data[2], 'ro')
-    
-        plt.subplot(413)
-        plt.title('CSP Filtered Data Channels 1 and 4')
-        plt.xlabel('Channel 1')
-        plt.ylabel('Channel 8')
-        plt.plot(np.array(CSP_filtered_data[0]), np.array(CSP_filtered_data[3]), 'ro')
-        
-        plt.subplot(414)
-        plt.title('CSP Filtered Data Channels 2 and 3')
-        plt.xlabel('Channel 2')
-        plt.ylabel('Channel 8')
-        plt.plot(np.array(CSP_filtered_data[1]), np.array(CSP_filtered_data[2]), 'ro')
-        
-        plt.tight_layout()
-    plt.show()
+#    #Apply CSP 
+##    for i, CSP_filters in enumerate([lrest[1], rrest[1], lr[1]]):
+#        CSP_filtered_data = CSP_filters.T * np.matrix(filtered_eeg_data)
+##        plot_indices = sample([i for i in range(filtered_eeg_data.shape[1])], 100) #Plotting random samples for less clutter
+#        plt.figure(i + 1)
+#        
+#        plt.subplot(411)
+#        plt.title('Bandpass Filtered EEG Data Channels 1 and 8')
+#        plt.xlabel('Channel 1')
+#        plt.ylabel('Channel 8')
+#        plt.plot(filtered_eeg_data[0], filtered_eeg_data[3], 'ro')
+#        
+#        plt.subplot(412)
+#        plt.title('Bandpass Filtered EEG Data Channels 2 and 7')
+#        plt.xlabel('Channel 2')
+#        plt.ylabel('Channel 7')
+#        plt.plot(filtered_eeg_data[1], filtered_eeg_data[2], 'ro')
+#    
+#        plt.subplot(413)
+#        plt.title('CSP Filtered Data Channels 1 and 8')
+#        plt.xlabel('Channel 1')
+#        plt.ylabel('Channel 8')
+#        plt.plot(np.array(CSP_filtered_data[0]), np.array(CSP_filtered_data[3]), 'ro')
+#        
+#        plt.subplot(414)
+#        plt.title('CSP Filtered Data Channels 2 and 7')
+#        plt.xlabel('Channel 2')
+#        plt.ylabel('Channel 8')
+#        plt.plot(np.array(CSP_filtered_data[1]), np.array(CSP_filtered_data[2]), 'ro')
+#        
+#        plt.tight_layout()
+#    plt.show()
 
 #Line graphs of seperate bandpass-filtered eeg data and CSP-filtered eeg data
 ###############################################################################
