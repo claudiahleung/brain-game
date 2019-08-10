@@ -43,10 +43,10 @@ const p5BrainGame = new p5(sketch => {
       sketch.rect(0, this.y, sketch.width, config.floorHeight);
       sketch.fill(config.bgColor);
       sketch.stroke(config.bgColor);
-      sketch.rect(this.x, this.y, config.gapWidth,          config.floorHeight);
+      sketch.rect(this.x, this.y, config.gapWidth, config.floorHeight);
       sketch.textSize(30);
       sketch.fill(0);
-      sketch.text('Score: '+state.score, 10, 30);
+      sketch.text('Score: ' + state.score, 10, 30);
     }
 
     isOutOfBounds() {
@@ -56,15 +56,15 @@ const p5BrainGame = new p5(sketch => {
     collisionHandling() {
       if (player.y + player.radius > this.y &&
         player.y - player.radius < this.y) {
-          if (player.x - player.radius < this.x || player.x + player.radius > this.x + config.gapWidth) {
-            player.y = this.y - player.radius;
-          }
-          // else if () {}
+        if (player.x - player.radius < this.x || player.x + player.radius > this.x + config.gapWidth) {
+          player.y = this.y - player.radius;
+        }
+        // else if () {}
       }
       if (player.y - player.radius > this.y && !this.passed) {
         this.passed = true;
         state.score += 10;
-	      state.floorSpeed = config.floorSpeed + 0.5 * sketch.log(1 +  state.score / 20);  
+        state.floorSpeed = config.floorSpeed + 0.5 * sketch.log(1 + state.score / 20);
       }
     }
   }
@@ -72,7 +72,7 @@ const p5BrainGame = new p5(sketch => {
   sketch.reset = () => {
     state.floors = [new Floor()];
     state.player.x = sketch.width / 2;
-    state.player.y = sketch.height /2;
+    state.player.y = sketch.height / 2;
     state.score = 0;
     state.floorSpeed = UNIT / 3
   };
@@ -91,17 +91,24 @@ const p5BrainGame = new p5(sketch => {
     sketch.update();
   };
 
+  sketch.mouseClicked = () => {
+    if (sketch.mouseX > 0 && sketch.mouseX < sketch.width && sketch.mouseY > 0 && sketch.mouseY < sketch.height) {
+      let fs = sketch.fullscreen();
+      sketch.fullscreen(!fs);
+    }
+  }
+
   sketch.keyPressed = () => {
     if (sketch.keyIsDown(sketch.RIGHT_ARROW) && !sketch.keyIsDown(sketch.LEFT_ARROW)) {
-        player.vx = config.horizontalSpeed;
+      player.vx = config.horizontalSpeed;
     }
     if (sketch.keyIsDown(sketch.LEFT_ARROW) && !sketch.keyIsDown(sketch.RIGHT_ARROW)) {
-        player.vx = -config.horizontalSpeed;
+      player.vx = -config.horizontalSpeed;
     }
   }
 
   sketch.keyReleased = () => {
-    if (!sketch.keyIsDown(sketch.RIGHT_ARROW) &&             !sketch.keyIsDown(sketch.LEFT_ARROW))
+    if (!sketch.keyIsDown(sketch.RIGHT_ARROW) && !sketch.keyIsDown(sketch.LEFT_ARROW))
       player.vx = 0;
     if (sketch.keyIsDown(sketch.RIGHT_ARROW))
       player.vx = config.horizontalSpeed;
@@ -135,7 +142,7 @@ const p5BrainGame = new p5(sketch => {
     };
 
     const playerBottomEdge = player.y + player.radius;
-    if (playerBottomEdge < sketch.height){
+    if (playerBottomEdge < sketch.height) {
       player.y += player.vy;
     }
     if (player.x - player.radius <= 0) {
