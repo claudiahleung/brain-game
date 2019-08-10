@@ -8,7 +8,13 @@ const p5BrainGame = new p5(sketch => {
     floorSpeed: UNIT / 3,
     bgColor: 220,
     horizontalSpeed: UNIT,
-    verticalSpeed: UNIT / 3,
+    verticalSpeed: UNIT,
+    
+    // added how much to increase the speed of the camera by
+    cameraSpeedRamp: 0.3,
+    
+    // added a way to scroll up the camera so that player stays in focus
+    scrollCameraThreshold: parseInt(2/3 * 500),
   };
 
   const state = {
@@ -20,8 +26,17 @@ const p5BrainGame = new p5(sketch => {
       vy: config.verticalSpeed,
     },
     floors: [],
-    floorSpeed: UNIT / 3,
+    
+    // removed floorspeed and replaced with cameraVelocity
+    // floorSpeed: UNIT / 3,
+
+    // created a variable to store how fast the camera is scrolling upwards
+    cameraVelocity: -UNIT / 3,
+    
     score: 0,
+    
+    // cameraY scrolls everything (player & floors) up by its value of pixels 
+    cameraY: 0
   };
 
   const player = state.player;
@@ -29,28 +44,36 @@ const p5BrainGame = new p5(sketch => {
   class Floor {
     constructor() {
       this.x = sketch.random(0, sketch.width - config.gapWidth);
-      this.y = sketch.height;
+
+      // added cameraY
+      this.y = sketch.height - state.cameraY; 
       this.passed = false;
     }
 
     update() {
-      this.y -= state.floorSpeed;
+      // don't need this
+      // this.y -= state.floorSpeed;
     }
 
     draw() {
       sketch.stroke(config.bgColor);
       sketch.fill(0);
-      sketch.rect(0, this.y, sketch.width, config.floorHeight);
+      
+      // added cameraY
+      sketch.rect(0, this.y + state.cameraY, sketch.width, config.floorHeight);
       sketch.fill(config.bgColor);
       sketch.stroke(config.bgColor);
-      sketch.rect(this.x, this.y, config.gapWidth, config.floorHeight);
+      
+      // added cameraY
+      sketch.rect(this.x, this.y + state.cameraY, config.gapWidth, config.floorHeight);
       sketch.textSize(30);
       sketch.fill(0);
-      sketch.text('Score: '+state.score, 10, 30);
+      sketch.text('Score: '+ state.score, 10, 30);
     }
 
     isOutOfBounds() {
-      return this.y + config.floorHeight < 0;
+      // added cameraY
+      return this.y + config.floorHeight + state.cameraY < 0;
     }
 
     collisionHandling() {
@@ -58,29 +81,37 @@ const p5BrainGame = new p5(sketch => {
         player.y - player.radius < this.y) {
           if (player.x - player.radius < this.x || player.x + player.radius > this.x + config.gapWidth) {
             player.y = this.y - player.radius;
+            player.vy = config.verticalSpeed;
           }
           // else if () {}
       }
       if (player.y - player.radius > this.y && !this.passed) {
         this.passed = true;
         state.score += 10;
-	state.floorSpeed = state.score / 10;  
+        state.floorSpeed = state.score / 10;
+
+        // increase speed of camera instead of floor
+        state.cameraVelocity -= config.cameraSpeedRamp;
       }
     }
   }
 
   sketch.reset = () => {
+    state.cameraY = 0;
     state.floors = [new Floor()];
     state.player.x = sketch.width / 2;
     state.player.y = sketch.height /2;
     state.score = 0;
-    state.floorSpeed = UNIT / 3
+    //state.floorSpeed = UNIT / 3
+
+    // replaced floorspeed with cameravelocity
+    state.cameraVelocity = -UNIT / 3;
   };
 
 
   sketch.setup = () => {
     sketch.createCanvas(500, 500);
-    player.radius = 2 * UNIT
+    player.radius = 2 * UNIT;
     player.x = sketch.width / 2;
     player.y = sketch.height / 2;
     sketch.reset();
@@ -112,11 +143,16 @@ const p5BrainGame = new p5(sketch => {
   }
 
   sketch.update = () => {
+
+    // added cameraVelocity to cameraY
+    state.cameraY += state.cameraVelocity;
+    
     state.floors.forEach(floor => floor.update());
     state.floors.filter(floor => !floor.isOutOfBounds());
     const lastFloor = state.floors[state.floors.length - 1];
 
-    if (lastFloor.y < sketch.height - config.floorDist) {
+    // added cameraY
+    if (lastFloor.y + state.cameraY < sketch.height - config.floorDist) {
       state.floors.push(new Floor());
     }
 
@@ -124,19 +160,30 @@ const p5BrainGame = new p5(sketch => {
 
     state.floors.forEach(floor => floor.collisionHandling());
 
-    if (player.y - player.radius <= 0) {
+    // added cameraY
+    if (player.y - player.radius + state.cameraY <= 0) {
       sketch.reset();
     };
 
-    const playerBottomEdge = player.y + player.radius;
-    if (playerBottomEdge < sketch.height){
-      player.y += player.vy;
-    }
+    // no longer need this 
+    // const playerBottomEdge = player.y + player.radius + state.cameraY;
+    // if (playerBottomEdge < sketch.height) {
+    //   player.y += player.vy;
+    // }
+
     if (player.x - player.radius <= 0) {
       player.x = player.radius
     }
     if (player.x + player.radius >= sketch.width) {
       player.x = sketch.width - player.radius
+    }
+    
+    // make the player fall vertically
+    player.y += player.vy;
+
+    // if player falls below threshold, scrolls up the camera to stay in view
+    if (player.y + state.cameraY > config.scrollCameraThreshold) {
+      state.cameraY -= 1;
     }
   };
 
@@ -153,7 +200,7 @@ const p5BrainGame = new p5(sketch => {
   sketch.drawPlayer = () => {
     sketch.noStroke();
     sketch.fill(0);
-    sketch.ellipse(player.x, player.y,
+    sketch.ellipse(player.x, player.y + state.cameraY,
       2 * player.radius);
   };
 }, 'brain-game-div');
