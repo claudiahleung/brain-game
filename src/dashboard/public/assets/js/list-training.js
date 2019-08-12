@@ -152,6 +152,11 @@ $(document).ready(function() {
           clearInterval(collectionTimer);
           console.log('stop');
           updateQueue();
+
+          for (var i = 0; i < currentProtocol.length; i++) {
+            addElement(currentProtocol[i], "#currentProtocol", false);
+          }
+
         }
       }, 1000);
 
