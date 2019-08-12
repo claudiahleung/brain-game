@@ -37,7 +37,8 @@ function startSSVEPSession(command, freq) {
       sketch.translate(sketch.width / 2, sketch.height / 2);
 
       dots.forEach(({angle, frequency}) => {
-        let radius = sketch.min(sketch.width, sketch.height) * 0.3;
+        //let radius = sketch.min(sketch.width, sketch.height) * 0.3;
+        let radius = sketch.min(sketch.width, sketch.height) * 0.35;
         let numFrames = 60 / frequency;
 
         if (command[0] == 'RestSSVEP' || command[0] == 'Cue' ||
@@ -47,12 +48,14 @@ function startSSVEPSession(command, freq) {
           let x = radius * sketch.cos(angle);
           let y = radius * -sketch.sin(angle);
 
-          sketch.ellipse(x, y, radius / 3);
+          //sketch.ellipse(x, y, radius / 3);
+          sketch.ellipse(x, y, radius / 1.6);
           sketch.stroke('red');
           sketch.strokeWeight(10);
           sketch.noFill();
           if (frequency == freq) {
-            sketch.ellipse(x, y, radius / 3);
+            //sketch.ellipse(x, y, radius / 3);
+            sketch.ellipse(x, y, radius / 1.5 );
           }
         }
       });
