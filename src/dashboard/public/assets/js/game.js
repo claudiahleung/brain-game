@@ -49,7 +49,7 @@ const p5BrainGame = new p5(sketch => {
       sketch.rect(this.x, this.y, config.gapWidth, config.floorHeight);
       sketch.textSize(30);
       sketch.fill(0);
-      sketch.text('Score: '+state.score, 10, 30);
+      sketch.text('Score: ' + state.score, 10, 30);
     }
 
     isOutOfBounds() {
@@ -72,7 +72,7 @@ const p5BrainGame = new p5(sketch => {
       if (player.y - player.radius > this.y + config.floorHeight && !this.passed) {
         this.passed = true;
         state.score += 10;
-        state.floorSpeed = config.floorSpeed + 0.5 * sketch.log(1 +  state.score / 20);  
+        state.floorSpeed = config.floorSpeed + 0.5 * sketch.log(1 + state.score / 20);
       }
     }
   }
@@ -80,7 +80,7 @@ const p5BrainGame = new p5(sketch => {
   sketch.reset = () => {
     state.floors = [new Floor()];
     state.player.x = sketch.width / 2;
-    state.player.y = sketch.height /2;
+    state.player.y = sketch.height / 2;
     state.score = 0;
     state.floorSpeed = config.floorSpeed;
   };
@@ -101,12 +101,20 @@ const p5BrainGame = new p5(sketch => {
     }
   };
 
+  sketch.mouseClicked = () => {
+    if (sketch.mouseX > 0 && sketch.mouseX < sketch.width &&
+      sketch.mouseY > 0 && sketch.mouseY < sketch.height) {
+      let fs = sketch.fullscreen();
+      sketch.fullscreen(!fs);
+    }
+  }
+
   sketch.keyPressed = () => {
     if (sketch.keyIsDown(sketch.RIGHT_ARROW) && !sketch.keyIsDown(sketch.LEFT_ARROW)) {
-        player.vx = config.horizontalSpeed;
+      player.vx = config.horizontalSpeed;
     }
     if (sketch.keyIsDown(sketch.LEFT_ARROW) && !sketch.keyIsDown(sketch.RIGHT_ARROW)) {
-        player.vx = -config.horizontalSpeed;
+      player.vx = -config.horizontalSpeed;
     }
   }
 
