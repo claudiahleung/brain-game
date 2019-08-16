@@ -61,7 +61,6 @@ Location: Wong 0070
 - SSVEP
     - Trial 3: 1-2-5s 10Hz 12Hz 15Hz, 5 times
         - Channels: 3, 4, 5
-        - SSVEP interface was buggy on Claudia's laptop, switched to Michelle's for Trials 4 and 5
     - Trial 4: 1-2-5s 10Hz 12Hz 15Hz, 5 times
         - Channels: 3, 4, 5
     - Trial 5: 1-2-5s 10Hz 12Hz 15Hz, 5 times
