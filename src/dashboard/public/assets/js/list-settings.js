@@ -92,8 +92,15 @@ $(document).ready(function() {
   // load button (from Custom Protocol)
   $(".load-custom").click(function() {
 
-    // first clear the current protocol space
+    // clear the current protocol space
     clearList('#currentProtocol');
+
+    var randomize;
+    if($('#randomizeSSVEP').is(':checked')) {
+      randomize = true;
+    } else{
+      randomize = false;
+    }
 
     var protocol = [];
 
@@ -101,15 +108,31 @@ $(document).ready(function() {
     $('#listMu').children('div').each(function () {
         var itemDuration = $(this).data("duration");
         var itemDirection = $(this).data("direction")
-        protocol.push([itemDirection, itemDuration, "mu"]);
+        var element = [itemDirection, itemDuration, "mu"];
+
+        protocol.push(element);
     });
 
     // add SSVEP cues
+    var ssvep_unsorted = []
     $('#listSSVEP').children('div').each(function () {
-        var itemFreq = $(this).data("freq")
+        var itemFreq = $(this).data("freq");
         var itemTimes = $(this).data("times");
-        protocol.push([itemFreq, itemTimes, "ssvep"]);
+        var element = [itemFreq, itemTimes, "ssvep"];
+
+        if (randomize) {
+          ssvep_unsorted.push(element);
+        } else {
+          protocol.push(element);
+        }
     });
+
+    // shuffle SSVEP cues
+    for (var i = ssvep_unsorted.length-1; i >= 0; i--) {
+      index = Math.floor(Math.random() * i);
+      protocol.push(ssvep_unsorted[index]);
+      ssvep_unsorted.splice(index, 1);
+    }
 
     socket.emit('protocolChanged', protocol);
   })

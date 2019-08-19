@@ -523,7 +523,7 @@ io.on('connection', function(socket){
 /*
 Generate default data collection protocols
 */
-protocolFile = "default_protocols.json";
+var protocolFile = "default_protocols.json";
 var defaultProtocols = {
   defaultAll: [],
   defaultMu: [],
@@ -536,19 +536,30 @@ var durationMu = 30;
 var frequenciesSSVEP = [10, 12, 15];
 var timesSSVEP = [1,2,5];
 
-// generate mu cues
+// generate mu cues and add to default protocols
 for (var i = 0; i < 2; i++) {
   for (var j = 0; j < directionsMu.length; j++) {
-    defaultProtocols["defaultAll"].push([directionsMu[j], durationMu, "mu"]);
-    defaultProtocols["defaultMu"].push([directionsMu[j], durationMu, "mu"]);
+    var element = [directionsMu[j], durationMu, "mu"];
+    defaultProtocols["defaultAll"].push(element);
+    defaultProtocols["defaultMu"].push(element);
   }
 }
 // generate SSVEP cues
-for (var i = 0; i < 3; i++) {
+var ssvep_unsorted = [];
+for (var i = 0; i < 5; i++) {
   for (var j = 0; j < directionsMu.length; j++) {
-    defaultProtocols["defaultAll"].push([frequenciesSSVEP[j], timesSSVEP, "ssvep"]);
-    defaultProtocols["defaultSSVEP"].push([frequenciesSSVEP[j], timesSSVEP, "ssvep"]);
+    var element = [frequenciesSSVEP[j], timesSSVEP, "ssvep"];
+    ssvep_unsorted.push(element);
   }
 }
-// load default mu + SSVEP protocol
-currentProtocol = defaultProtocols["defaultMu"];
+
+// randomize SSVEP cues and add to default protocols
+for (var i = ssvep_unsorted.length-1; i >= 0; i--) {
+  index = Math.floor(Math.random() * i);
+  defaultProtocols["defaultAll"].push(ssvep_unsorted[index]);
+  defaultProtocols["defaultSSVEP"].push(ssvep_unsorted[index]);
+  ssvep_unsorted.splice(index, 1);
+}
+
+// load default protocol
+var currentProtocol = defaultProtocols["defaultMu"];
