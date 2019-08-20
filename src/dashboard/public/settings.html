@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Dashboard for the McGill NeuroTech Club">
+  <meta name="author" content="McGill NeuroTech">
+
+  <title>McGill NeuroTech Dashboard</title>
+
+  <!-- Custom fonts for this template-->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link rel="stylesheet" href="assets/css/style-2.css">
+  <link rel="stylesheet" href="assets/css/list.css">
+  <link href="assets/css/sb-admin-2.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top" class="sidebar-toggled">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar toggled sidebar-dark accordion" id="accordionSidebar">
+
+      <!-- Sidebar - Brand -->
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+        <div class="sidebar-brand-icon">
+          <img src="assets/img/mcgill-neurotech-white.png" alt="McGill Neurotech logos" width="50px">
+        </div>
+      </a>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+      <!-- Nav Item - Training -->
+      <li class="nav-item">
+        <a class="nav-link" href="/">
+          <i class="fas fa-fw fa-brain"></i>
+          <span>Training</span></a>
+      </li>
+
+      <!-- Nav Item - Trainer -->
+      <li class="nav-item">
+        <a class="nav-link" href="/trainer">
+          <i class="fas fa-fw fa-brain"></i>
+          <span>Trainer</span>
+        </a>
+      </li>
+
+      <!-- Nav Item - Production -->
+      <li class="nav-item">
+        <a class="nav-link" href="/production">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Production</span>
+        </a>
+      </li>
+
+      <!-- Nav Item - Game -->
+      <li class="nav-item">
+        <a class="nav-link" href="/game">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Game</span>
+        </a>
+      </li>
+
+      <!-- Nav Item - Settings -->
+      <li class="nav-item active">
+        <a class="nav-link" href="/settings">
+          <i class="fas fa-fw fa-wrench"></i>
+          <span>Settings</span>
+        </a>
+      </li>
+
+    </ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid main-page">
+
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Settings</h1>
+          </div>
+
+          <!-- Content Row -->
+          <div class="row">
+
+            <!-- Current Protocol -->
+            <div class="col-xl-3 col-lg-3 col-md-4">
+              <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Current Protocol</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                  <div id="currentProtocol" class="list-group col">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Load Default Protocol -->
+            <div class="col-xl-3 col-lg-3 col-md-4">
+              <div class="card shadow mb-4" style="z-index: 1">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Load Default Protocol</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+
+                  <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
+                    <button class="load-default btn btn-outline-secondary" protocol-name="defaultAll">Mu and SSVEP</button>
+                  </div>
+                  <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
+                    <button class="load-default btn btn-outline-secondary" protocol-name="defaultMu">Mu only</button>
+                  </div>
+                  <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
+                    <button class="load-default btn btn-outline-secondary" protocol-name="defaultSSVEP">SSVEP only</button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Create Custom Protocol -->
+            <div class="col-xl-3 col-lg-3 col-md-4">
+              <div class="card shadow mb-4" style="z-index: 1">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Create Custom Protocol</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                  <!-- custom Mu settings -->
+                  <div>
+                    <div class='mb-3'><strong>Mu Settings</strong></div>
+                    <!-- Duration -->
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Duration</span>
+                      </div>
+                      <input type="text" class="form-control" id="timeMu" aria-describedby="basic-addon1">
+                    </div>
+                    <!-- left/right/rest buttons -->
+                    <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
+                      <button class="add-mu btn btn-outline-secondary" data-direction="Left">Left</button>
+                      <button class="add-mu btn btn-outline-secondary" data-direction="Rest">Rest</button>
+                      <button class="add-mu btn btn-outline-secondary" data-direction="Right">Right</button>
+                    </div>
+                    <!-- loop button -->
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Loop</span>
+                      </div>
+                        <input type="text" id="loopTimesMu" class="form-control">
+                      <div class="input-group-append">
+                        <button class="loop-mu btn btn-outline-secondary">Apply</button>
+                      </div>
+                    </div>
+                    <!-- clear button -->
+                    <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
+                      <button class="clear-mu btn btn-outline-secondary">Clear Mu</button>
+                    </div>
+                  </div>
+                  <hr>
+                  <!-- custom SSVEP settings -->
+                  <div>
+                    <div class='mb-3'><strong>SSVEP Settings</strong></div>
+                    <!-- Rest/cue/stimulus time -->
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Rest/Cue/Stim</span>
+                      </div>
+                      <input type="text" id="timeRest" class="form-control">
+                      <input type="text" id="timeCue" class="form-control">
+                      <input type="text" id="timeStim" class="form-control">
+                    </div>
+                    <!-- SSVEP frequency buttons-->
+                    <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
+                      <button class="add-ssvep btn btn-outline-secondary" data-freq="10">10 Hz</button>
+                      <button class="add-ssvep btn btn-outline-secondary" data-freq="12">12 Hz</button>
+                      <button class="add-ssvep btn btn-outline-secondary" data-freq="15">15 Hz</button>
+                    </div>
+                    <!-- loop button -->
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Loop</span>
+                      </div>
+                        <input type="text" id="loopTimesSSVEP" class="form-control">
+                      <div class="input-group-append">
+                        <button class="loop-ssvep btn btn-outline-secondary">Apply</button>
+                      </div>
+                    </div>
+                    <!-- clear button -->
+                    <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
+                      <button class="clear-ssvep btn btn-outline-secondary">Clear SSVEP</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Custom Protocol -->
+            <div class="col-xl-3 col-lg-3 col-md-4">
+              <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Custom Protocol</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                  <!-- Custom Mu Protocol -->
+                  <div id="listMu" class="command-list list-group col">
+                  </div>
+                  <hr>
+                  <!-- Custom SSVEP Protocol -->
+                  <div id="listSSVEP" class="command-list list-group col">
+                  </div>
+                  <hr>
+                  <div class="custom-control custom-checkbox mb-3">
+                    <input type="checkbox" class="custom-control-input" id="randomizeSSVEP" checked=true >
+                    <label class="custom-control-label" for="randomizeSSVEP">Randomize SSVEP elements</label>
+                  </div>
+                  <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
+                    <button class="load-custom btn btn-outline-secondary">Load</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- End of row -->
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Bootstrap core JavaScript-->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> -->
+
+
+  <!-- Core plugin JavaScript-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <!-- <script src="assets/js/sb-admin-2.js"></script> -->
+
+  <!-- For rearranging the queue -->
+  <script src="assets/js/sortable.js"></script>
+
+  <!-- Queue control -->
+  <script src="assets/js/list-settings.js"></script>
+
+  <script src="assets/js/socket.io.js"></script>
+  <script src="assets/js/control.js"></script>
+
+  <script>
+    var socket = io();
+    socket.emit('requestCurrentProtocol');
+  </script>
+
+  <script>
+    var left = document.getElementById('listMu');
+    new Sortable(left, {
+      group: {
+          name: 'shared',
+          handle: '.handle', // To clone: set pull to 'clone'
+          put: false
+      },
+      animation: 150,
+      sort: true,
+      handle: '.handle'
+    });
+    var left = document.getElementById('listSSVEP');
+    new Sortable(left, {
+      group: {
+          name: 'shared',
+          handle: '.handle', // To clone: set pull to 'clone'
+          put: false
+      },
+      animation: 150,
+      sort: true,
+      handle: '.handle'
+    });
+  </script>
+
+</body>
+
+</html>
