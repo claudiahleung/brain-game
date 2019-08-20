@@ -65,3 +65,6 @@ Location: Wong 0070
         - Channels: 3, 4, 5
     - Trial 5: 1-2-5s 10Hz 12Hz 15Hz, 5 times
         - Channels: 3, 4, 5
+
+*Remarks*
+- Tying the participant's hair into pigtails and having them sit closer to the screen (with brightness turned up) seems to give better results (when comparing PSDs with previous subjects' SSVEP trials)
