@@ -1,6 +1,5 @@
 $(document).ready(function() {
   console.log("List javascript loaded!");
-  var list = document.getElementById('commandBank');
   var trialName;
   //SETS ACTIVE TO ALL OF THEM FOR NOW!
   var active = [1,1,1,1,1,1,1,1];
@@ -9,14 +8,48 @@ $(document).ready(function() {
 
   initializeCustomProtocol();
 
-  //To remove an element from the queue
-	$(".command-list").on("click", ".remove", function(){
-    console.log("here?");
-    event.preventDefault();
-    $(this).parent().remove();
+  socket.on("protocol", function(options) {
+    var action = options["action"];
+    switch(action) {
+      case "sendProtocol":
+        // display new protocol
+        protocol = options["protocol"];
+        for (var i = 0; i < protocol.length; i++) {
+          addElement(protocol[i], "#currentProtocol", false);
+        }
+        break;
+      case "sendShuffleValues":
+        shuffle = options["shuffle"];
+        $("#shuffleDefaultSSVEP").prop("checked", shuffle["default"]);
+        $("#shuffleCustomSSVEP").prop("checked", shuffle["custom"]);
+        break;
+    }
   });
 
-  // add element to queue
+  // checkbox for default protocols
+  $('#shuffleDefaultSSVEP').change(function() {
+    socket.emit("protocol", {"action":"updateShuffleValue", "type":"default", "value":this.checked});
+  });
+
+  // checkbox for custom protocol
+  $('#shuffleCustomSSVEP').change(function() {
+    socket.emit("protocol", {"action":"updateShuffleValue", "type":"custom", "value":this.checked});
+  });
+
+  // load button (from 'Load Default Protocol')
+  $(".load-default").click(function() {
+
+    // first clear current protocol space
+    clearList("#currentProtocol");
+
+    // get protocol name
+    var protocolName = $(this).attr("protocol-name");
+
+    // send request to server
+    socket.emit("protocol", {"action":"requestProtocol", "protocolName":protocolName});
+  })
+
+  // add element to custom mu protocol
   $(".add-mu").click(function() {
     var duration = $("#timeMu").val();
     var direction = $(this).data("direction");
@@ -24,6 +57,7 @@ $(document).ready(function() {
     addElement([direction, duration, "mu"], "#listMu", true);
   })
 
+  // add element to custom SSVEP protocol
   $(".add-ssvep").click(function() {
     var timeRest = int($("#timeRest").val());
     var timeCue = int($("#timeCue").val());
@@ -33,33 +67,16 @@ $(document).ready(function() {
     addElement([freq, [timeRest, timeCue, timeStim], "ssvep"], "#listSSVEP", true);
   })
 
-  /*
-   * Protocol Management
-   */
+  // remove an element from custom mu/SSVEP protocol
+  $(".command-list").on("click", ".remove", function(){
+    console.log("here?");
+    event.preventDefault();
+    $(this).parent().remove();
+  });
 
-   // display current protocol
-    socket.on('currentProtocol', function(protocol) {
-      for (var i = 0; i < protocol.length; i++) {
-        addElement(protocol[i], "#currentProtocol", false);
-      }
-    })
-
-   // load button (from 'Load Default Protocol')
-   $(".load-default").click(function() {
-
-     // first clear current protocol space
-     clearList("#currentProtocol");
-
-     // get protocol type
-     var protocolName = $(this).attr("protocol-name");
-
-     // send request to server
-     socket.emit("requestDefaultProtocol", protocolName);
-   })
-
-  // loop button
+  // loop button for custom mu protocol
   $(".loop-mu").click(function() {
-    console.log("Loop mu")
+    console.log("Loop mu");
 
     // get loop times and current elements in queue
     var times = $("#loopTimesMu").val();
@@ -73,9 +90,9 @@ $(document).ready(function() {
     }
   });
 
-  // loop button
+  // loop button for custom SSVEP protocol
   $(".loop-ssvep").click(function() {
-    console.log("Loop SSVEP")
+    console.log("Loop SSVEP");
 
     // get loop times and current elements in queue
     var times = $("#loopTimesSSVEP").val();
@@ -95,13 +112,6 @@ $(document).ready(function() {
     // clear the current protocol space
     clearList('#currentProtocol');
 
-    var randomize;
-    if($('#randomizeSSVEP').is(':checked')) {
-      randomize = true;
-    } else{
-      randomize = false;
-    }
-
     var protocol = [];
 
     // add mu cues
@@ -114,27 +124,15 @@ $(document).ready(function() {
     });
 
     // add SSVEP cues
-    var ssvep_unsorted = []
     $('#listSSVEP').children('div').each(function () {
         var itemFreq = $(this).data("freq");
         var itemTimes = $(this).data("times");
         var element = [itemFreq, itemTimes, "ssvep"];
 
-        if (randomize) {
-          ssvep_unsorted.push(element);
-        } else {
-          protocol.push(element);
-        }
+        protocol.push(element);
     });
 
-    // shuffle SSVEP cues
-    for (var i = ssvep_unsorted.length-1; i >= 0; i--) {
-      index = Math.floor(Math.random() * i);
-      protocol.push(ssvep_unsorted[index]);
-      ssvep_unsorted.splice(index, 1);
-    }
-
-    socket.emit('protocolChanged', protocol);
+    socket.emit("protocol", {"action":"changeProtocol", "protocol":protocol});
   })
 
   // clear mu button (from 'Customize Protocol')
@@ -181,7 +179,7 @@ function initializeCustomProtocol() {
   $("#loopTimesSSVEP").val(5);
 }
 
-// Adds protocol element to list
+// adds protocol element to list
 function addElement(element, id, changeable) {
   // element must be of form [label, time, type]
   var type = element[2];
@@ -210,13 +208,14 @@ function addElement(element, id, changeable) {
   }
 }
 
-// function that clears list (id should be either #currentProtocol or #listMu or #listSSVEP)
+// clears list (id should be either #currentProtocol or #listMu or #listSSVEP)
 function clearList(id) {
   $(id + " div").each(function() {
     $(this).remove();
   });
 }
 
+// casts string to int in base 10
 function int(str) {
   return parseInt(str, 10);
 }
