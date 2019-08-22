@@ -140,6 +140,45 @@ def process(files, graph=False, save=False, img_root='./images/'):
             print('Right-Rest:', rrest[0])
             print('Left-Right:', lr[0])
 
+            def classifier(W, X):
+                a = 0.5
+                b = 0
+
+                return np.sign( a * np.log( np.var( W * X ) ) + b)
+
+            correct_votes = 0
+            incorrect_votes = 0
+            for i in range(bandpass_eeg_data.shape[1] // 250):
+                classify_data = np.matrix(bandpass_eeg_data[:, 250 * i : 250 * (i + 1)])
+                correct_label = labels[250 * i + 125]
+    
+                votes = [0, 0, 0]
+                l = ['Rest', 'Left', 'Right']
+
+                if classifier(np.matrix(lrest[1]), classify_data) > 0:
+                    votes[0] += 1
+                else:
+                    votes[1] += 1
+
+                if classifier(np.matrix(rrest[1]), classify_data) > 0:
+                    votes[0] += 1
+                else:
+                    votes[1] += 1
+
+                if classifier(np.matrix(lr[1]), classify_data) > 0:
+                    votes[2] += 1
+                else:
+                    votes[1] += 1
+
+                if l[np.argmax(votes)] == correct_label:
+                    correct_votes += 1
+                else:
+                    incorrect_votes += 1
+
+            print(correct_votes, incorrect_votes)
+            print(correct_votes / (correct_votes + incorrect_votes), incorrect_votes / (correct_votes + incorrect_votes))
+
+
 #            #Uncomment these to print actual eigenvectors - they don't give any information though
 #            print('*****CSP Eigenvectors*****')
 #            print('*****Left-Rest*****')
@@ -210,6 +249,6 @@ if __name__ == "__main__":
     high = 30                                           #Bandpass filter highcut frequency
     order = 5                                           #Bandpass filter order
     
-    directories = sorted(glob('../data/*'))
-    files = sorted(glob(join(directories[4], '*.csv')))
+#    directories = sorted(glob('../data/*'))
+    files = sorted(glob('../data/2019-08-19/*mu*.csv'))
     process(files[0], graph=False, save=False)
