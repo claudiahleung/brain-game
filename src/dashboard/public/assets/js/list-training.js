@@ -134,7 +134,7 @@ $(document).ready(function() {
           console.log('stop');
 
           updateQueue();
-          socket.emit("protocol", {"action":"request", "protocolName":"current"});
+          socket.emit("protocol", {"action":"requestProtocol", "protocolName":"current"});
 
         }
       }, 1000);
