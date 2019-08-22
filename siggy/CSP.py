@@ -55,7 +55,7 @@ def CSP(X, X_labels):
     rest_covariance = (rest_samples * rest_samples.T) / rest_samples.shape[1]
     left_covariance = (left_samples * left_samples.T) / left_samples.shape[1]
     right_covariance = (right_samples * right_samples.T) / right_samples.shape[1]
-    
+
     #Solve generalized eigenvalue problem with left/right covariance matricese
     return [eigh(left_covariance, left_covariance + rest_covariance, lower=False, check_finite=False), 
             eigh(right_covariance, right_covariance + rest_covariance, lower=False, check_finite=False), 
@@ -92,11 +92,11 @@ def process(files, graph=False, save=False, img_root='./images/'):
 
         if save:
             #Save resulting eigenvalues
-            with open('./results.txt', 'a+') as out:
+            with open('./results_CSP.txt', 'a+') as out:
                 out.write(f + '\n')
                 out.write('Left-Rest:' + str(lrest[0]) + '\n')
                 out.write('Right-Rest:' + str(rrest[0]) + '\n')
-                out.write('Left-Right:' + str(lr[0]) + '\n')
+                out.write('Left-Right:' + str(lr[0]) + '\n\n')
 
 #                #Uncomment these to save actual eigenvectors - they don't give any information though
 #                out.write('*****CSP Eigenvectors*****\n')
@@ -105,7 +105,7 @@ def process(files, graph=False, save=False, img_root='./images/'):
 #                out.write('*****Right-Rest*****\n')
 #                out.write(rrest[1] + '\n')
 #                out.write('*****Left-Right*****\n')
-#                out.write(lr[1] + '\n')
+#                out.write(lr[1] + '\n\n')
 
             if graph:
                 filepath = f.split('/')
@@ -210,6 +210,6 @@ if __name__ == "__main__":
     high = 30                                           #Bandpass filter highcut frequency
     order = 5                                           #Bandpass filter order
     
-    directories = sorted(glob('../data/*'))
-    files = sorted(glob(join(directories[4], '*.csv')))
-    process(files[0], graph=False, save=False)
+#   directories = sorted(glob('../data/*'))
+    files = sorted(glob('../data/2019-08-19/*mu*.csv'))[0]
+    process(files, graph=False, save=False)
