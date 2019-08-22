@@ -7,7 +7,7 @@ Location: Wong 0070
 
 *Head measurements*
 - Nasion-inion: 38 cm
-    - Midpoint: 20.25 cm
+    - Midpoint: 19 cm
 - Interauricular distance: 39.5 cm
     - Midpoint: 19.75 cm
 
@@ -41,3 +41,5 @@ Location: Wong 0070
 
 *Remarks*
 - Participant was tired, especially for mu trials
+- SSVEP data seems to be better than previous session (2019-08-15) for this subject (from PSD plots);
+ not sure if this is because of distance from screen or because cues are random now
