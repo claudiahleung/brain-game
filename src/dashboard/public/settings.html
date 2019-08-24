@@ -125,6 +125,7 @@
                 <!-- Card Body -->
                 <div class="card-body">
 
+                  <!-- Load buttons for each default protocol-->
                   <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
                     <button class="load-default btn btn-outline-secondary" protocol-name="defaultAll">Mu and SSVEP</button>
                   </div>
@@ -133,6 +134,14 @@
                   </div>
                   <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
                     <button class="load-default btn btn-outline-secondary" protocol-name="defaultSSVEP">SSVEP only</button>
+                  </div>
+
+                  <hr>
+
+                  <!-- Checkbox -->
+                  <div class="custom-control custom-checkbox mb-3">
+                    <input type="checkbox" class="custom-control-input" id="shuffleDefaultSSVEP">
+                    <label class="custom-control-label" for="shuffleDefaultSSVEP">Shuffle SSVEP elements</label>
                   </div>
 
                 </div>
@@ -234,6 +243,10 @@
                   <div id="listSSVEP" class="command-list list-group col">
                   </div>
                   <hr>
+                  <div class="custom-control custom-checkbox mb-3">
+                    <input type="checkbox" class="custom-control-input" id="shuffleCustomSSVEP">
+                    <label class="custom-control-label" for="shuffleCustomSSVEP">Shuffle SSVEP elements</label>
+                  </div>
                   <div class="btn-group btn-group-toggle full-button-width" data-toggle="buttons">
                     <button class="load-custom btn btn-outline-secondary">Load</button>
                   </div>
@@ -278,7 +291,8 @@
 
   <script>
     var socket = io();
-    socket.emit('requestCurrentProtocol');
+    socket.emit("protocol", {"action":"requestProtocol", "protocolName":"current"});
+    socket.emit("protocol", {"action":"requestShuffleValues"});
   </script>
 
   <script>

@@ -68,19 +68,11 @@ $(document).ready(function() {
       // variable to save timestamps
       var timestamps_cues = [];
 
-      // this function performs the next action in the queue
-
-      // //Sets display to first elements command/time
-      // console.log('think-' + direction);
-      // // save first timestamp
-      // timestamps_cues.push({'time':getTimeValue(), 'cue':direction})
-      // $('#think-' + direction).removeClass('button-off');
-      // $('#think-' + direction).addClass('button-on');
-      // $('#collectTime').html(durationLeft + ' s');
       let j = 0;
       let commandCounter = 0;
       let time = 1;
 
+      // this function performs the next action in the queue
       const doNextCommand = function(first) {
         if (!first) {
           if (queue[commandCounter][2] === "mu") {
@@ -123,17 +115,6 @@ $(document).ready(function() {
         if (time < totalTime) {
           if (time >= times[commandCounter]){
             doNextCommand(false);
-            // //This means we've gotten to the end of element j's duration
-            // console.log("next command", queue[commandCounter]);
-            // $('#think-' + direction).removeClass('button-on');
-            // $('#think-' + direction).addClass('button-off');
-            // direction = queue[j][0];
-            // // save timestamp
-            // timestamps_cues.push({'time':getTimeValue(), 'cue':direction})
-            // $('#think-' + direction).removeClass('button-off');
-            // //Setup direction again
-            // $('#think-' + direction).addClass('button-on');
-            // updateQueue();
           }
           // If we're not at end of duration, decrement time
           durationLeft = times[commandCounter] - time;
@@ -151,11 +132,9 @@ $(document).ready(function() {
           $('#collectTime').html("&nbsp;");
           clearInterval(collectionTimer);
           console.log('stop');
-          updateQueue();
 
-          for (var i = 0; i < currentProtocol.length; i++) {
-            addElement(currentProtocol[i], "#currentProtocol", false);
-          }
+          updateQueue();
+          socket.emit("protocol", {"action":"requestProtocol", "protocolName":"current"});
 
         }
       }, 1000);
@@ -177,12 +156,18 @@ $(document).ready(function() {
   });
 
   // display current protocol
-  socket.on('currentProtocol', function(protocol) {
-    currentProtocol = protocol;
-    for (var i = 0; i < currentProtocol.length; i++) {
-      addElement(currentProtocol[i], "#currentProtocol", false);
+  socket.on("protocol", function(options) {
+    var action = options["action"];
+    switch(action) {
+      case "sendProtocol":
+        protocol = options["protocol"];
+        for (var i = 0; i < protocol.length; i++) {
+          addElement(protocol[i], "#currentProtocol", false);
+        }
+        currentProtocol = protocol;
+        break;
     }
-  })
+  });
 });
 
 /*

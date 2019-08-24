@@ -3,177 +3,213 @@ import matplotlib.pyplot as plt
 from scipy.linalg import eigh
 from scipy.signal import butter, lfilter
 from glob import glob
-from random import sample
+from os import mkdir
+from os.path import join
+from warnings import filterwarnings
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-if __name__ == "__main__":
-    #Set constants
-    files = sorted(glob('../data/11-07-19/*.txt'))  #Search directory for txt data files
-    fname = files[0]                                #Choose a file
-    fs = 250                                        #BCI sampling rate
-    low = 1                                         #Bandpass filter lowcut frequency
-    high = 70                                       #Bandpass filter highcut frequency
-    order = 5                                       #Bandpass filter order
-    task_s = 20                                     #Length (in seconds) of each task (left, right, rest) of trial
-    rest, l, r = 2, 0, 1                            #Zero-indexed order that tasks are performed in
+def CSP(X, X_labels):
+    '''
+    Aplpies a multi-class variation of the CSP algorithm to an eeg dataset
 
-    #Load raw EEG data
-    raw_eeg_data = np.loadtxt(fname, delimiter=', ', skiprows=7, usecols=[1,2,7,8], dtype='float64').T
-    num_sample_points = raw_eeg_data.shape[1]
-    samples_per_task = task_s * fs
-    samples_per_task_set = 3 * samples_per_task
-    num_full_trials = num_sample_points // samples_per_task_set
-    
-    #Bandpass filter
-    nyq = 0.5 * fs
-    b, a = butter(order, [low / nyq, high / nyq], btype='band')
-    filtered_eeg_data = lfilter(b, a, raw_eeg_data)
+    X - Bandpass filtered dataset
+    X_labels - label (left, right, or rest) which corresponds to each data point
+    '''
 
-#Toggling the part about centering can speed up code at slight cost of accuracy
-############################################################################### 
-    
+    #Toggling the part about centering can speed up code at slight cost of accuracy, O(cN^2) -> close to being the same as straight matrix mult
+    #Could practically speed up by saving compressed, stupidly large (300,000 by 300,000) id and matrix of ones and indexing necessary size?
+    ############################################################################### 
+    num_sample_points = X.shape[1]
     #Center the mean to zero and scale bandpass-filtered signal
     #X = 1 / sqrt(T) * X * (Id - matrix_of_ones)
-    
-    centered_scaled_eeg_data = np.zeros(filtered_eeg_data.shape)
-    for channel in range(filtered_eeg_data.shape[0]):
+  
+    centered_scaled_eeg_data = np.zeros(X.shape)
+    for channel in range(X.shape[0]):
         for i in range(num_sample_points):
             temp = np.zeros(num_sample_points) - np.ones(num_sample_points)
             temp[i] += 1
-            centered_scaled_eeg_data[channel, i] = np.dot(filtered_eeg_data[channel, :], temp.T)
+            centered_scaled_eeg_data[channel, i] = np.dot(X[channel, :], temp.T)
     
     centered_scaled_eeg_data = centered_scaled_eeg_data / np.sqrt(num_sample_points)
+    centered_scaled_eeg_data = X
+
+    ###############################################################################
     
-    #Seperate left/right sample points
-    select_data_index = 3 * fs * task_s * num_full_trials
-#    selected_data = filtered_eeg_data[:,:select_data_index]
-    selected_data = centered_scaled_eeg_data[:, :select_data_index]
+    #Seperate data based on labels               
+    seperate_labels = {'Rest': [], 'Left': [], 'Right': []}
+    latest_start = 0
+    i = 0
+    while i < len(X_labels) - 1:
+        if X_labels[i] != X_labels[i-1]:
+            seperate_labels[X_labels[i-1]].extend([j for j in range(latest_start, i)])
+            latest_start = i
+        i += 1        
+    
+    seperate_labels[X_labels[i]].extend([j for j in range(latest_start, len(X_labels))])
 
-###############################################################################
-
-    rest_indices = []
-    left_indices = []
-    right_indices = []
-
-    for i in range(select_data_index):
-        if rest == 0:
-            if i % samples_per_task_set < samples_per_task:
-                rest_indices.append(i)
-        elif rest == 1:
-            if i % samples_per_task_set >= samples_per_task and i % samples_per_task_set < 2 * samples_per_task:
-                rest_indices.append(i)
-        else:
-            if i % samples_per_task_set >= 2 * samples_per_task:
-                rest_indices.append(i)
-
-    for i in range(select_data_index):
-        if l == 0:
-            if i % samples_per_task_set < samples_per_task:
-                left_indices.append(i)
-        elif l == 1:
-            if i % samples_per_task_set >= samples_per_task and i % samples_per_task_set < 2 * samples_per_task:
-                left_indices.append(i)
-        else:
-            if i % samples_per_task_set >= 2 * samples_per_task:
-                left_indices.append(i)
-                
-    for i in range(select_data_index):
-        if r == 0:
-            if i % samples_per_task_set < samples_per_task:
-                right_indices.append(i)
-        elif r == 1:
-            if i % samples_per_task_set >= samples_per_task and i % samples_per_task_set < 2 * samples_per_task:
-                right_indices.append(i)
-        else:
-            if i % samples_per_task_set >= 2 * samples_per_task:
-                right_indices.append(i)
-
-    left_samples = np.matrix(selected_data[:, left_indices])
-    right_samples = np.matrix(selected_data[:, right_indices])
+    rest_samples = np.matrix(centered_scaled_eeg_data[:, seperate_labels['Rest']])
+    left_samples = np.matrix(centered_scaled_eeg_data[:, seperate_labels['Left']])
+    right_samples = np.matrix(centered_scaled_eeg_data[:, seperate_labels['Right']])
 
     #Calculate left/right covariance matrices
+    rest_covariance = (rest_samples * rest_samples.T) / rest_samples.shape[1]
     left_covariance = (left_samples * left_samples.T) / left_samples.shape[1]
     right_covariance = (right_samples * right_samples.T) / right_samples.shape[1]
 
     #Solve generalized eigenvalue problem with left/right covariance matricese
-    CSP_values, CSP_filters = eigh(left_covariance, left_covariance + right_covariance, lower=False, check_finite=False)
-    print('*****CSP Eigenvalues*****')
-    print(CSP_values)
-    print('*****CSP Eigenvectors*****')
-    print(CSP_filters)
-    
-#The rest is data visualization, technically you can tell how well they're seperated from CSP_values
-#Ideally CSP_values[0] is really close to 0, CSP_values[1] is kind of close, CSP_values[2] is kind of close to 1, CSP_values[3] is really close
-    
-#Scatter point graphs of bandpass-filtered and CSP-filtered eeg data with sibling channels paired together
-###############################################################################
-    #Apply CSP 
-#    CSP_filtered_data = CSP_filters.T * np.matrix(filtered_eeg_data)
-#    plot_indices = sample([i for i in range(num_sample_points)], 100) #Plotting random samples for less clutter
-#    plt.figure()
-#    
-#    plt.subplot(411)
-#    plt.title('Bandpass Filtered EEG Data Channels 1 and 4')
-#    plt.xlabel('Channel 1')
-#    plt.ylabel('Channel 4')
-#    plt.plot(filtered_eeg_data[0], filtered_eeg_data[3], 'ro')
-#    
-#    plt.subplot(412)
-#    plt.title('Bandpass Filtered EEG Data Channels 2 and 3')
-#    plt.xlabel('Channel 2')
-#    plt.ylabel('Channel 3')
-#    plt.plot(filtered_eeg_data[1], filtered_eeg_data[2], 'ro')
-#
-#    plt.subplot(413)
-#    plt.title('CSP Filtered Data Channels 1 and 4')
-#    plt.xlabel('Channel 1')
-#    plt.ylabel('Channel 4')
-#    plt.plot(np.array(CSP_filtered_data[0]), np.array(CSP_filtered_data[3]), 'ro')
-#    
-#    plt.subplot(414)
-#    plt.title('CSP Filtered Data Channels 2 and 3')
-#    plt.xlabel('Channel 2')
-#    plt.ylabel('Channel 3')
-#    plt.plot(np.array(CSP_filtered_data[1]), np.array(CSP_filtered_data[2]), 'ro')
-#    
-#    plt.tight_layout()
-#    plt.show()
+    return [eigh(left_covariance, left_covariance + rest_covariance, lower=False, check_finite=False), 
+            eigh(right_covariance, right_covariance + rest_covariance, lower=False, check_finite=False), 
+            eigh(left_covariance, left_covariance + right_covariance, lower=False, check_finite=False)]
 
-#Line graphs of seperate bandpass-filtered eeg data and CSP-filtered eeg data
-###############################################################################
-#    CSP_filtered_data = CSP_filters.T * np.matrix(filtered_eeg_data)
-#    plt.figure()
-#    
-#    plt.subplot(421)
-#    plt.title('Filtered EEG Data Channel 1')
-#    plt.plot(filtered_eeg_data[0])
-#    
-#    plt.subplot(422)
-#    plt.title('CSP EEG Data Channel 1')
-#    plt.plot(CSP_filtered_data[0])
-#    
-#    plt.subplot(423)
-#    plt.title('Filtered EEG Data Channel 2')
-#    plt.plot(filtered_eeg_data[1])
-#   
-#    plt.subplot(424)
-#    plt.title('CSP EEG Data Channel 2')
-#    plt.plot(CSP_filtered_data[1])
-#   
-#    plt.subplot(425)
-#    plt.title('Filtered EEG Data Channel 3')
-#    plt.plot(filtered_eeg_data[2])
-#   
-#    plt.subplot(426)
-#    plt.title('CSP EEG Data Channel 3')
-#    plt.plot(CSP_filtered_data[2])
-#   
-#    plt.subplot(427)
-#    plt.title('Filtered EEG Data Channel 4')
-#    plt.plot(filtered_eeg_data[3])
-#   
-#    plt.subplot(428)
-#    plt.title('CSP EEG Data Channel 4')
-#    plt.plot(CSP_filtered_data[3])
-#   
-#    plt.tight_layout()
-#    plt.show()
+def process(files, graph=False, save=False, img_root='./images/'):
+    '''
+    Processes eeg data files by applying multi-class CSP algorithm and either outputting or saving results
+
+    files - Path to data file to be processed. If files is a list of file paths, process every file. Otherwise process a single file.
+    graph - Option to graph the results of the CSP algorithm applied to bandpass filtered data from files. If "save" is False, then the graphs are displayed to screen, if "save" is True, then the graphs are saved to directories named after their acquisition date in root image directory.
+    save - Option to save the eigenvalues to a file called "results.txt" in current directory.
+    img_root - Destination to save graphs if "graph" and "save" are True
+    '''
+
+    def process_file(f, graph, save, img_root):
+        '''
+        Helper function that processes a single eeg data file
+        '''
+        #Get constants
+        global fs, low, high, order
+    
+        #Load data and labels
+        raw_eeg_data = np.genfromtxt(f, delimiter=',', skip_header=1, usecols=[1,2,7,8]).T
+        labels = np.genfromtxt(f, delimiter=',', skip_header=1, usecols=[9], dtype="|U5")
+
+        #Bandpass filter
+        nyq = 0.5 * fs
+        b, a = butter(order, [low / nyq, high / nyq], btype='band')
+        bandpass_eeg_data = lfilter(b, a, raw_eeg_data)
+
+        #Get eigenvalues and eigenvectors for left-rest, right-rest, and left-right
+        lrest, rrest, lr = CSP(bandpass_eeg_data, labels)
+
+        if save:
+            #Save resulting eigenvalues
+            with open('./results_CSP.txt', 'a+') as out:
+                out.write(f + '\n')
+                out.write('Left-Rest:' + str(lrest[0]) + '\n')
+                out.write('Right-Rest:' + str(rrest[0]) + '\n')
+                out.write('Left-Right:' + str(lr[0]) + '\n\n')
+
+#                #Uncomment these to save actual eigenvectors - they don't give any information though
+#                out.write('*****CSP Eigenvectors*****\n')
+#                out.write('*****Left-Rest*****\n')
+#                out.write(lrest[1] + '\n')
+#                out.write('*****Right-Rest*****\n')
+#                out.write(rrest[1] + '\n')
+#                out.write('*****Left-Right*****\n')
+#                out.write(lr[1] + '\n\n')
+
+            if graph:
+                filepath = f.split('/')
+
+                #Save plots by date of data acquisition
+                d = filepath[-2]
+                fname = filepath[-1][:-4]
+    
+                #Make the directory if it doesn't exist
+                try:
+                    mkdir(join(img_root, d))
+                except FileExistsError:
+                    pass
+
+                #Apply CSP filters and save the plot of CSP-filtered eeg data, bandpass-filtered eeg data
+                #left-rest
+                scatter_plot(1, bandpass_eeg_data, np.array(lrest[1].T * np.matrix(bandpass_eeg_data)))
+                plt.savefig(join(img_root, d, 'plot-1-' + fname), bbox_inches='tight')
+    
+                #right-rest
+                scatter_plot(2, bandpass_eeg_data, np.array(rrest[1].T * np.matrix(bandpass_eeg_data)))
+                plt.savefig(join(img_root, d, 'plot-2-' + fname), bbox_inches='tight')
+    
+                #left-right
+                scatter_plot(3, bandpass_eeg_data, np.array(lr[1].T * np.matrix(bandpass_eeg_data)))
+                plt.savefig(join(img_root, d, 'plot-3-' + fname), bbox_inches='tight')
+        else:
+            #If not saving the results, print them
+            print(f)
+            print('*****CSP Eigenvalues*****')
+            print('Left-Rest:', lrest[0])
+            print('Right-Rest:', rrest[0])
+            print('Left-Right:', lr[0])
+
+#            #Uncomment these to print actual eigenvectors - they don't give any information though
+#            print('*****CSP Eigenvectors*****')
+#            print('*****Left-Rest*****')
+#            print(lrest[1])
+#            print('*****Right-Rest*****')
+#            print(rrest[1])
+#            print('*****Left-Right*****')
+#            print(lr[1])
+
+            #Apply CSP filters and graph the plot of CSP-filtered eeg data, bandpass-filtered eeg data
+            if graph:
+                scatter_plot(1, bandpass_eeg_data, np.array(lrest[1].T * np.matrix(bandpass_eeg_data)))
+                scatter_plot(2, bandpass_eeg_data, np.array(rrest[1].T * np.matrix(bandpass_eeg_data)))
+                scatter_plot(3, bandpass_eeg_data, np.array(lr[1].T * np.matrix(bandpass_eeg_data)))
+                plt.show()
+
+    #Check whether arugment is a list of files or a single file
+    if type(files) == type(list()):
+        #Process every file
+        for f in files:
+            process_file(f, graph, save, img_root)
+    else:
+        #Only have to process a one file
+        process_file(files, graph, save, img_root)
+
+def scatter_plot(plt_num, first, second):
+    '''
+    Creates a scatter point plot figure with 4 subplots
+
+    plt_num - number of figure to be created 
+    first - first dataset to plot, is plotted in the first two subplots
+    second - second dataset to plot, is plotted in the second two subplots
+    '''
+    plt.figure(plt_num)
+
+    plt.subplot(411)
+    plt.title('Bandpass Filtered EEG Data Channels 1 and 8')
+    plt.xlabel('Channel 1')
+    plt.ylabel('Channel 8')
+    plt.plot(first[0], first[3], 'ro')
+ 
+    plt.subplot(412)
+    plt.title('Bandpass Filtered EEG Data Channels 2 and 7')
+    plt.xlabel('Channel 2')
+    plt.ylabel('Channel 7')
+    plt.plot(first[1], first[2], 'ro')
+ 
+    plt.subplot(413)
+    plt.title('CSP Filtered Data Channels 1 and 8')
+    plt.xlabel('Channel 1')
+    plt.ylabel('Channel 8')
+    plt.plot(second[0], second[3], 'ro')
+ 
+    plt.subplot(414)
+    plt.title('CSP Filtered Data Channels 2 and 7')
+    plt.xlabel('Channel 2')
+    plt.ylabel('Channel 7')
+    plt.plot(second[1], second[2], 'ro')
+ 
+    plt.tight_layout()
+
+if __name__ == "__main__":  
+    filterwarnings("ignore")
+
+    #Constants
+    fs = 250                                            #BCI sampling rate
+    low = 7                                             #Bandpass filter lowcut frequency
+    high = 30                                           #Bandpass filter highcut frequency
+    order = 5                                           #Bandpass filter order
+    
+#   directories = sorted(glob('../data/*'))
+    files = sorted(glob('../data/2019-08-19/*mu*.csv'))[0]
+    process(files, graph=False, save=False)
