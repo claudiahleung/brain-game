@@ -98,31 +98,40 @@ const p5BrainGame = new p5(sketch => {
     }
   }
 
-  sketch.keyPressed = () => {
-    if (sketch.keyIsDown(sketch.RIGHT_ARROW) && !sketch.keyIsDown(sketch.LEFT_ARROW)) {
-      player.vx = config.horizontalSpeed;
+  // sketch.keyPressed = () => {
+  //   if (sketch.keyIsDown(sketch.RIGHT_ARROW) && !sketch.keyIsDown(sketch.LEFT_ARROW)) {
+  //     player.vx = config.horizontalSpeed;
+  //   }
+  //   if (sketch.keyIsDown(sketch.LEFT_ARROW) && !sketch.keyIsDown(sketch.RIGHT_ARROW)) {
+  //     player.vx = -config.horizontalSpeed;
+  //   }
+  // }
+
+  // sketch.keyReleased = () => {
+  //   if (!sketch.keyIsDown(sketch.RIGHT_ARROW) && !sketch.keyIsDown(sketch.LEFT_ARROW))
+  //     player.vx = 0;
+  //   if (sketch.keyIsDown(sketch.RIGHT_ARROW))
+  //     player.vx = config.horizontalSpeed;
+  //   if (sketch.keyIsDown(sketch.LEFT_ARROW))
+  //     player.vx = -config.horizontalSpeed;
+  // }
+
+  // sketch.moveLeft = () => {
+  //   state.player.x -= UNIT / 5;
+  // }
+
+  // sketch.moveRight = () => {
+  //   state.player.x += UNIT / 5;
+  // }
+
+  
+  socket.on('game command', function (data) {
+    if (data === 'right') {
+      player.vx = config.horizontalSpeed; 
+    } else {
+      player.vx = - config.horizontalSpeed;
     }
-    if (sketch.keyIsDown(sketch.LEFT_ARROW) && !sketch.keyIsDown(sketch.RIGHT_ARROW)) {
-      player.vx = -config.horizontalSpeed;
-    }
-  }
-
-  sketch.keyReleased = () => {
-    if (!sketch.keyIsDown(sketch.RIGHT_ARROW) && !sketch.keyIsDown(sketch.LEFT_ARROW))
-      player.vx = 0;
-    if (sketch.keyIsDown(sketch.RIGHT_ARROW))
-      player.vx = config.horizontalSpeed;
-    if (sketch.keyIsDown(sketch.LEFT_ARROW))
-      player.vx = -config.horizontalSpeed;
-  }
-
-  sketch.moveLeft = () => {
-    state.player.x -= UNIT / 5;
-  }
-
-  sketch.moveRight = () => {
-    state.player.x += UNIT / 5;
-  }
+  })
 
   sketch.update = () => {
     state.floors.forEach(floor => floor.update());
