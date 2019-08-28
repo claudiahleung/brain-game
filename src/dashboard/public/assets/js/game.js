@@ -4,12 +4,15 @@ const p5BrainGame = new p5(sketch => {
   const config = {
     floorDist: 25 * UNIT,
     gapWidth: 15 * UNIT,
-    floorHeight: 3 * UNIT,
-    floorSpeed: UNIT / 5,
+    floorHeight: 5 * UNIT,
+    floorSpeed: UNIT / 5, // UNIT / 5
     bgColor: 220,
     horizontalSpeed: UNIT,
-    verticalSpeed: UNIT / 3,
+    verticalSpeed: UNIT / 3, // UNIT / 3 
   };
+  const iterations = 200;
+  const dt = 1 / iterations;
+
 
   const state = {
     player: {
@@ -34,7 +37,7 @@ const p5BrainGame = new p5(sketch => {
     }
 
     update() {
-      this.y -= state.floorSpeed;
+      this.y -= state.floorSpeed * dt;
     }
 
     draw() {
@@ -55,13 +58,18 @@ const p5BrainGame = new p5(sketch => {
 
     collisionHandling() {
       if (player.y + player.radius > this.y &&
-        player.y - player.radius < this.y) {
-        if (player.x - player.radius < this.x || player.x + player.radius > this.x + config.gapWidth) {
-          player.y = this.y - player.radius;
+        player.y - player.radius < this.y + config.floorHeight) {
+        if ((player.x - player.radius < this.x ||
+          player.x + player.radius > this.x + config.gapWidth) && 
+          player.y + player.radius - 2 * state.floorSpeed * dt < this.y + 2 * player.vy * dt) {
+            player.y = this.y - player.radius;
+        } else if (player.x - player.radius < this.x && player.vx < 0) {
+          player.x = this.x + player.radius;
+        } else if (player.x + player.radius > this.x + config.gapWidth && player.vx > 0) {
+          player.x = this.x + config.gapWidth - player.radius;
         }
-        // else if () {}
       }
-      if (player.y - player.radius > this.y && !this.passed) {
+      if (player.y - player.radius > this.y + config.floorHeight && !this.passed) {
         this.passed = true;
         state.score += 10;
         state.floorSpeed = config.floorSpeed + 0.5 * sketch.log(1 + state.score / 20);
@@ -74,7 +82,7 @@ const p5BrainGame = new p5(sketch => {
     state.player.x = sketch.width / 2;
     state.player.y = sketch.height / 2;
     state.score = 0;
-    state.floorSpeed = UNIT / 3
+    state.floorSpeed = config.floorSpeed;
   };
 
 
@@ -88,11 +96,14 @@ const p5BrainGame = new p5(sketch => {
 
   sketch.draw = () => {
     sketch.drawScene();
-    sketch.update();
+    for (let i = 0; i < iterations; i++) {
+      sketch.update();
+    }
   };
 
   sketch.mouseClicked = () => {
-    if (sketch.mouseX > 0 && sketch.mouseX < sketch.width && sketch.mouseY > 0 && sketch.mouseY < sketch.height) {
+    if (sketch.mouseX > 0 && sketch.mouseX < sketch.width &&
+      sketch.mouseY > 0 && sketch.mouseY < sketch.height) {
       let fs = sketch.fullscreen();
       sketch.fullscreen(!fs);
     }
@@ -116,14 +127,6 @@ const p5BrainGame = new p5(sketch => {
       player.vx = -config.horizontalSpeed;
   }
 
-  sketch.moveLeft = () => {
-    state.player.x -= UNIT / 5;
-  }
-
-  sketch.moveRight = () => {
-    state.player.x += UNIT / 5;
-  }
-
   sketch.update = () => {
     state.floors.forEach(floor => floor.update());
     state.floors = state.floors.filter(floor => !floor.isOutOfBounds());
@@ -133,7 +136,7 @@ const p5BrainGame = new p5(sketch => {
       state.floors.push(new Floor());
     }
 
-    player.x += player.vx;
+    player.x += player.vx * dt;
 
     state.floors.forEach(floor => floor.collisionHandling());
 
@@ -142,14 +145,14 @@ const p5BrainGame = new p5(sketch => {
     };
 
     const playerBottomEdge = player.y + player.radius;
-    if (playerBottomEdge < sketch.height) {
-      player.y += player.vy;
+    if (playerBottomEdge < sketch.height){
+      player.y += player.vy * dt;
     }
     if (player.x - player.radius <= 0) {
-      player.x = player.radius
+      player.x = player.radius;
     }
     if (player.x + player.radius >= sketch.width) {
-      player.x = sketch.width - player.radius
+      player.x = sketch.width - player.radius;
     }
   };
 

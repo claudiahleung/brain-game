@@ -270,7 +270,7 @@
   <script>
     var socket = io();
     socket.emit('production', {on: false});
-    socket.emit('requestCurrentProtocol');
+    socket.emit("protocol", {"action":"requestProtocol", "protocolName":"current"});
   </script>
 
 </body>

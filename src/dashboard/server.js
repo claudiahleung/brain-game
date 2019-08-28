@@ -83,6 +83,13 @@ var roboticsTime = getTimeValue()
 var roboticsCurrentTime;
 
 /*
+ * Settings
+*/
+var filenameProtocols = "default_protocols.json";
+var currentProtocol;
+var shuffle = {"default":true, "custom":true};
+
+/*
 Express
 */
 // Sets static directory as public
@@ -481,74 +488,142 @@ io.on('connection', function(socket){
     // console.log('spawned')
   });
 
-
   socket.on('incomingTimestamps', function(timestamps_cues) {
-
     let date = new Date();
-    var filename = 'data/timestamps-' + date.getFullYear() + '-' + (date.getMonth()+1) + '-' +
+    var filename = 'data/' + trialName + '-timestamps-' + date.getFullYear() + '-' + (date.getMonth()+1) + '-' +
                    date.getDate() + '-' + date.getHours() + '-' +
                    date.getMinutes() + '-' + date.getSeconds() + '.json';
 
     fs.writeFile(filename, JSON.stringify(timestamps_cues), function(err) {
       if (err) {
-        console.log(err);
+        throw err;
       } else {
         console.log('timestamps + labels saved');
       }
-    })
-
+    });
   })
 
-  socket.on('requestCurrentProtocol', function() {
-    // send current protocol
-    socket.emit('currentProtocol', currentProtocol);
-  })
+  /*
+   * Protocol Management
+   */
+  socket.on("protocol", function(options) {
+    var action = options["action"];
+    switch (action) {
+      // on request of current/default protocol
+      case "requestProtocol":
+        var protocolName = options["protocolName"];
 
-  socket.on('requestDefaultProtocol', function(protocolName) {
-    // change current protocol to one of the default ones
-    currentProtocol = defaultProtocols[protocolName];
-    // send current protocol
-    socket.emit('currentProtocol', currentProtocol);
-  })
+        if (protocolName != "current") {
+          currentProtocol = getDefaultProtocol(filenameProtocols, protocolName);
+        }
 
-  socket.on('protocolChanged', function(protocol) {
-    // update current protocol
-    currentProtocol = protocol;
-    // send current protocol
-    socket.emit('currentProtocol', currentProtocol);
-    })
+        // option to shuffle SSVEP elements
+        if (shuffle["default"]) {
+          shuffleSSVEP(currentProtocol);
+        }
 
+        socket.emit("protocol", {"action":"sendProtocol", "protocol":currentProtocol});
+        break;
+
+      // on protocol change (from Settings page)
+      case "changeProtocol":
+        var protocolNew = options["protocol"];
+        currentProtocol = protocolNew;
+
+        if (shuffle["custom"]) {
+          shuffleSSVEP(currentProtocol);
+        }
+
+        socket.emit("protocol", {"action":"sendProtocol", "protocol":currentProtocol});
+        break;
+
+      case "updateShuffleValue":
+        var type = options["type"];
+        shuffle[type] = options["value"];
+        break;
+
+      case "requestShuffleValues":
+        socket.emit("protocol", {"action":"sendShuffleValues", "shuffle":shuffle});
+        break;
+    };
+  });
 });
 
-/*
-Generate default data collection protocols
-*/
-protocolFile = "default_protocols.json";
-var defaultProtocols = {
-  defaultAll: [],
-  defaultMu: [],
-  defaultSSVEP: []
-};
-// default mu queue settings
-var directionsMu = ['Rest', 'Left', 'Right'];
-var durationMu = 30;
-// default SSVEP queue settings
-var frequenciesSSVEP = [10, 12, 15];
-var timesSSVEP = [1,2,5];
+// save default protocols in .json file
+//writeDefaultProtocols(filenameProtocols);
+// load default protocol
+currentProtocol = getDefaultProtocol(filenameProtocols, "defaultMu")
 
-// generate mu cues
-for (var i = 0; i < 2; i++) {
-  for (var j = 0; j < directionsMu.length; j++) {
-    defaultProtocols["defaultAll"].push([directionsMu[j], durationMu, "mu"]);
-    defaultProtocols["defaultMu"].push([directionsMu[j], durationMu, "mu"]);
-  }
+if (shuffle["default"]) {
+  // shuffle SSVEP elements
+  shuffleSSVEP(currentProtocol);
 }
-// generate SSVEP cues
-for (var i = 0; i < 3; i++) {
-  for (var j = 0; j < directionsMu.length; j++) {
-    defaultProtocols["defaultAll"].push([frequenciesSSVEP[j], timesSSVEP, "ssvep"]);
-    defaultProtocols["defaultSSVEP"].push([frequenciesSSVEP[j], timesSSVEP, "ssvep"]);
-  }
+
+function getDefaultProtocol(filename, protocolName) {
+  data = fs.readFileSync(filename, 'utf8');
+  defaultProtocols = JSON.parse(data);
+  return defaultProtocols[protocolName];
 }
-// load default mu + SSVEP protocol
-currentProtocol = defaultProtocols["defaultMu"];
+
+// generates default protocols and saves them as JSON file
+function writeDefaultProtocols(filename) {
+  var defaultProtocols = {
+    defaultAll: [],
+    defaultMu: [],
+    defaultSSVEP: [],
+  };
+  // default mu queue settings
+  var directionsMu = ['Rest', 'Left', 'Right'];
+  var durationMu = 30;
+  // default SSVEP queue settings
+  var frequenciesSSVEP = [10, 12, 15];
+  var timesSSVEP = [1,2,5];
+  // generate mu cues and add to default protocols
+  for (var i = 0; i < 2; i++) {
+    for (var j = 0; j < directionsMu.length; j++) {
+      var element = [directionsMu[j], durationMu, "mu"];
+      defaultProtocols["defaultAll"].push(element);
+      defaultProtocols["defaultMu"].push(element);
+    }
+  }
+  // generate SSVEP cues and add to default protocols
+  for (var i = 0; i < 5; i++) {
+    for (var j = 0; j < directionsMu.length; j++) {
+      var element = [frequenciesSSVEP[j], timesSSVEP, "ssvep"];
+      if (i < 3) {
+        defaultProtocols["defaultAll"].push(element);
+      }
+      defaultProtocols["defaultSSVEP"].push(element);
+    }
+  }
+  // write to file
+  fs.writeFileSync(filename, JSON.stringify(defaultProtocols), function(err) {
+    if (err) {
+      throw err;
+    } else {
+      console.log("default protocols saved to file")
+    }
+  });
+}
+
+function shuffleSSVEP(protocol) {
+  var elementsSSVEP = [];
+
+  for (var i = 0; i < protocol.length; i++) {
+    if (protocol[i][2] == "ssvep") {
+      elementsSSVEP.push([i, protocol[i]]);
+    }
+  }
+
+  for (var i = elementsSSVEP.length-1; i >= 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    temp = elementsSSVEP[i][1];
+    elementsSSVEP[i][1] = elementsSSVEP[j][1];
+    elementsSSVEP[j][1] = temp;
+  }
+
+  for (var i = 0; i < elementsSSVEP.length; i++) {
+    protocol[elementsSSVEP[i][0]] = elementsSSVEP[i][1];
+  }
+
+}
