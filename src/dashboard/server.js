@@ -2,6 +2,7 @@
 const dgram = require('dgram');
 // const events = require('events');
 const express = require('express');
+
 const app_express = express();
 const server = app_express.listen(3000);
 const io = require('socket.io').listen(server);
@@ -10,146 +11,161 @@ const osc = require('node-osc');
 const createCSVWriter = require('csv-writer').createObjectCsvWriter;
 const path = require('path');
 
-var oscServer = new osc.Server(12345, '127.0.0.1');
+let oscServer = new osc.Server(12345, '127.0.0.1');
 // var spawn = require("child_process").spawn; // to run
-var mode = "training";
+let mode = 'training';
 
 
 /*
 Training Parameters
 */
-var csvTimeWriter;
-//Other values will only be updated if collecting is true!
-var collecting = false; //Will determine if collecting and sending to file currently.
-var duration = 0;
-var direction = "none";
-var active = [];
-var collectionTimer=null;
-var trialName = null;
-var timeTesting = getTimeValue();
-var numSamples = 0;
-var counterSpect1 = 0;
-var counterSpect2 = 0;
+let csvTimeWriter;
+// Other values will only be updated if collecting is true!
+let collecting = false; // Will determine if collecting and sending to file currently.
+let duration = 0;
+let direction = 'none';
+let active = [];
+let collectionTimer = null;
+let trialName = null;
+let timeTesting = getTimeValue();
+let numSamples = 0;
+let counterSpect1 = 0;
+let counterSpect2 = 0;
 
 /*
 Setting up CSV writers
 */
 
 /* Formatting header of time CSV */
-const timeHeader = [{id: 'time', title: 'TIME'},
-                    {id: 'channel1', title: 'CHANNEL 1'},
-                    {id: 'channel2', title: 'CHANNEL 2'},
-                    {id: 'channel3', title: 'CHANNEL 3'},
-                    {id: 'channel4', title: 'CHANNEL 4'},
-                    {id: 'channel5', title: 'CHANNEL 5'},
-                    {id: 'channel6', title: 'CHANNEL 6'},
-                    {id: 'channel7', title: 'CHANNEL 7'},
-                    {id: 'channel8', title: 'CHANNEL 8'},
-                    {id: 'direction', title: 'STATE'},]
+const timeHeader = [{ id: 'time', title: 'TIME' },
+  { id: 'channel1', title: 'CHANNEL 1' },
+  { id: 'channel2', title: 'CHANNEL 2' },
+  { id: 'channel3', title: 'CHANNEL 3' },
+  { id: 'channel4', title: 'CHANNEL 4' },
+  { id: 'channel5', title: 'CHANNEL 5' },
+  { id: 'channel6', title: 'CHANNEL 6' },
+  { id: 'channel7', title: 'CHANNEL 7' },
+  { id: 'channel8', title: 'CHANNEL 8' },
+  { id: 'direction', title: 'STATE' } ];
 
 /* Setting up array for actually storing the time data where each index has
 the header data (time, channels 1-8) */
 const timeHeaderToWrite = {
-                  time: 'Time',
-                  channel1: 'Channel 1',
-                  channel2: 'Channel 2',
-                  channel3: 'Channel 3',
-                  channel4: 'Channel 4',
-                  channel5: 'Channel 5',
-                  channel6: 'Channel 6',
-                  channel7: 'Channel 7',
-                  channel8: 'Channel 8',
-                  direction: 'Direction',
-                };
+  time: 'Time',
+  channel1: 'Channel 1',
+  channel2: 'Channel 2',
+  channel3: 'Channel 3',
+  channel4: 'Channel 4',
+  channel5: 'Channel 5',
+  channel6: 'Channel 6',
+  channel7: 'Channel 7',
+  channel8: 'Channel 8',
+  direction: 'Direction',
+};
 
-var timeSamples = [timeHeaderToWrite];
+let timeSamples = [timeHeaderToWrite];
 // Global variable will be used to store time data
 
 /*
 Production Parameters
 */
-const SEND_RATE = .2; // seconds
+const SEND_RATE = 0.2; // seconds
 const EXPECTED_SAMPLE_RATE = 250; // samples per second
 const SAMPLES_TO_SEND = EXPECTED_SAMPLE_RATE * SEND_RATE;
-var toSend = [];
-var state = "forward" // forward, turning, stop
+let toSend = [];
+let state = 'forward'; // forward, turning, stop
 const TURN_TIME = 3000; // milliseconds
-var canGo = {left: 1,
-             right: 1,
-             forward: 1};
-var stopTime = 0;
+let canGo = {
+left: 1,
+  right: 1,
+  forward: 1
+};
+let stopTime = 0;
 const MAX_STOP_TIME = 20;
-var roboticsTime = getTimeValue()
-var roboticsCurrentTime;
+let roboticsTime = getTimeValue();
+let roboticsCurrentTime;
 
 /*
  * Settings
 */
-var filenameProtocols = "default_protocols.json";
-var currentProtocol;
-var shuffle = {"default":true, "custom":true};
+let filenameProtocols = 'default_protocols.json';
+let currentProtocol;
+let shuffle = { 'default': true, 'custom': true };
 
 /*
 Express
 */
 // Sets static directory as public
-app_express.use(express.static(__dirname + '/public'));
+app_express.use(express.static(`${__dirname  }/public`));
 
 app_express.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname + '/public/index.html'));
+  res.sendFile(path.join(`${__dirname  }/public/index.html`));
 });
 
 app_express.get('/trainer', (req, res) => {
-  res.sendFile(path.join(__dirname + '/public/trainer.html'));
+  res.sendFile(path.join(`${__dirname  }/public/trainer.html`));
 });
 
 app_express.get('/production', (req, res) => {
-  res.sendFile(path.join(__dirname + '/public/production.html'));
+  res.sendFile(path.join(`${__dirname  }/public/production.html`));
 });
 
 app_express.get('/game', (req, res) => {
-  res.sendFile(path.join(__dirname + '/public/game.html'));
+  res.sendFile(path.join(`${__dirname  }/public/game.html`));
 });
 
-// establish new route (/stream_data) to get 50 rows of raw data from python streamer
+app_express.post('/data_stream', (req, res) => {
+  res.send('POST request sent to data_stream');
+});
+
 app_express.get('/data_stream', (req, res) => {
-  // res.sendFile(path.join(__dirname + '/offline/backend/stream_data.py'));
-})
+  const maxChunks = 50;
+  let count = 0;
+
+  while (count < maxChunks) {
+    res.write(`${JSON.stringify({
+      type: 'stream',
+      chunk: count++,
+    })}\n`);
+
+    res.end();
+  }
+});
 
 app_express.get('/settings', (req, res) => {
-  res.sendFile(path.join(__dirname + '/public/settings.html'));
+  res.sendFile(path.join(`${__dirname  }/public/settings.html`));
 });
 
-console.log('Listening on Port 3000!')
+console.log('Listening on Port 3000!');
 
 
 /* Gets the current time */
 function getTimeValue() {
-  var dateBuffer = new Date();
-  var Time = dateBuffer.getTime();
-  //Milliseconds since 1 January 1970
+  let dateBuffer = new Date();
+  let Time = dateBuffer.getTime();
+  // Milliseconds since 1 January 1970
   return Time;
 }
 
 
 /* Sets the csvwriters to the correct paths! */
-function setupCsvWriters(){
-    let date = new Date();
-    var day = date.getFullYear() + '-' + (date.getMonth()+1) + '-' +
-                   date.getDate() + '-' + date.getHours() + '-' +
-                   date.getMinutes() + '-' + date.getSeconds();
-   //Formatting date as YYYY-MM-DD-hr-min-sec
+function setupCsvWriters() {
+  const date = new Date();
+  let day = `${date.getFullYear()  }-${  date.getMonth()+1  }-${
+                   date.getDate()  }-${  date.getHours()  }-${
+                   date.getMinutes()  }-${  date.getSeconds()}`;
+  // Formatting date as YYYY-MM-DD-hr-min-sec
 
-    csvTimeWriter = createCSVWriter({
-          path: __dirname + '/data/' + trialName + '-'
-                          + day + '.csv',
-          //File name of CSV for time test
-          header: timeHeader,
-          append: true
-    });
+  csvTimeWriter = createCSVWriter({
+    path: `${__dirname  }/data/${  trialName  }-${
+                           day  }.csv`,
+    // File name of CSV for time test
+    header: timeHeader,
+    append: true,
+  });
 }
 
-oscServer.on("message", function (data) {
+oscServer.on('message', (data) => {
   let time = getTimeValue(); // milliseconds since January 1 1970. Adjust?
   let dataWithoutFirst = []; // TODO
 
@@ -205,63 +221,62 @@ oscServer.on("message", function (data) {
 sample. It writes samples to a CSV file, recording the collected data and the time.
 
 Takes in 'data' object which has 'time' and 'data' attributes, and type (fft or time) */
-function appendSample(data, type){
+function appendSample(data, type) {
   channelData = [];
   for (i = 0; i < 8; i++) {
-    if (active[i] == 1) {//Only get data for active channels
-        channelData[i] = data['data'][i];
-    }
-    else {
+    if (active[i] == 1) { // Only get data for active channels
+      channelData[i] = data.data[i];
+    } else {
       channelData[i] = null;
     }
   }
 
   if (type == 'time') {
-    let timeSampleToPush = {time: data['time'],
-                    channel1: channelData[0],
-                    channel2: channelData[1],
-                    channel3: channelData[2],
-                    channel4: channelData[3],
-                    channel5: channelData[4],
-                    channel6: channelData[5],
-                    channel7: channelData[6],
-                    channel8: channelData[7],
-                    direction: data['direction'],
-                  }
-    //channelData is 1D for time
+    const timeSampleToPush = {
+ time: data.time,
+      channel1: channelData[0],
+      channel2: channelData[1],
+      channel3: channelData[2],
+      channel4: channelData[3],
+      channel5: channelData[4],
+      channel6: channelData[5],
+      channel7: channelData[6],
+      channel8: channelData[7],
+      direction: data.direction,
+    };
+    // channelData is 1D for time
     timeSamples.push(timeSampleToPush);
-    //Updating global timeSamples variable
+    // Updating global timeSamples variable
   }
 }
 
 
-/*END OF TRIAL*/
+/*END OF TRIAL */
 
 
 /* This function runs when a trial is finishing.If data is meant to be saved,
 test number increments by one and testNumber is reset. timeSamples and
 fftSamples are reset as well, to just the headers.Takes boolean argument. */
-function endTest(saved){
-  if(saved){
+function endTest(saved) {
+  if (saved) {
     // time data is written to CSV
     csvTimeWriter.writeRecords(timeSamples).then(() => {
       console.log('Added some time samples');
     });
-  }
-  else{
-      console.log("User terminated trial. No data saved.")
+  } else {
+    console.log('User terminated trial. No data saved.');
   }
 
-  //Both global variables are reset
+  // Both global variables are reset
   timeSamples = [];
 }
 
 
-/*USER CONTROL OF COLLECTING BOOLEAN WITH SOCKET IO*/
+/*USER CONTROL OF COLLECTING BOOLEAN WITH SOCKET IO */
 
 
 // Socket IO:
-io.on('connection', function(socket){
+io.on('connection', (socket) => {
   console.log('A user connected socket');
 
   socket.on('stop', function(){
@@ -552,11 +567,11 @@ io.on('connection', function(socket){
 });
 
 // save default protocols in .json file
-//writeDefaultProtocols(filenameProtocols);
+// writeDefaultProtocols(filenameProtocols);
 // load default protocol
-currentProtocol = getDefaultProtocol(filenameProtocols, "defaultMu")
+currentProtocol = getDefaultProtocol(filenameProtocols, 'defaultMu');
 
-if (shuffle["default"]) {
+if (shuffle.default) {
   // shuffle SSVEP elements
   shuffleSSVEP(currentProtocol);
 }
@@ -569,37 +584,37 @@ function getDefaultProtocol(filename, protocolName) {
 
 // generates default protocols and saves them as JSON file
 function writeDefaultProtocols(filename) {
-  var defaultProtocols = {
+  let defaultProtocols = {
     defaultAll: [],
     defaultMu: [],
     defaultSSVEP: [],
   };
   // default mu queue settings
-  var directionsMu = ['Rest', 'Left', 'Right'];
-  var durationMu = 30;
+  let directionsMu = ['Rest', 'Left', 'Right'];
+  let durationMu = 30;
   // default SSVEP queue settings
-  var frequenciesSSVEP = [10, 12, 15];
-  var timesSSVEP = [1,2,5];
+  let frequenciesSSVEP = [10, 12, 15];
+  let timesSSVEP = [1, 2, 5];
   // generate mu cues and add to default protocols
   for (var i = 0; i < 2; i++) {
     for (var j = 0; j < directionsMu.length; j++) {
-      var element = [directionsMu[j], durationMu, "mu"];
-      defaultProtocols["defaultAll"].push(element);
-      defaultProtocols["defaultMu"].push(element);
+      var element = [directionsMu[j], durationMu, 'mu'];
+      defaultProtocols.defaultAll.push(element);
+      defaultProtocols.defaultMu.push(element);
     }
   }
   // generate SSVEP cues and add to default protocols
   for (var i = 0; i < 5; i++) {
     for (var j = 0; j < directionsMu.length; j++) {
-      var element = [frequenciesSSVEP[j], timesSSVEP, "ssvep"];
+      var element = [frequenciesSSVEP[j], timesSSVEP, 'ssvep'];
       if (i < 3) {
-        defaultProtocols["defaultAll"].push(element);
+        defaultProtocols.defaultAll.push(element);
       }
-      defaultProtocols["defaultSSVEP"].push(element);
+      defaultProtocols.defaultSSVEP.push(element);
     }
   }
   // write to file
-  fs.writeFileSync(filename, JSON.stringify(defaultProtocols), function(err) {
+  fs.writeFileSync(filename, JSON.stringify(defaultProtocols), (err) => {
     if (err) {
       throw err;
     } else {
@@ -609,16 +624,16 @@ function writeDefaultProtocols(filename) {
 }
 
 function shuffleSSVEP(protocol) {
-  var elementsSSVEP = [];
+  let elementsSSVEP = [];
 
   for (var i = 0; i < protocol.length; i++) {
-    if (protocol[i][2] == "ssvep") {
+    if (protocol[i][2] == 'ssvep') {
       elementsSSVEP.push([i, protocol[i]]);
     }
   }
 
-  for (var i = elementsSSVEP.length-1; i >= 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
+  for (var i = elementsSSVEP.length - 1; i >= 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
     temp = elementsSSVEP[i][1];
     elementsSSVEP[i][1] = elementsSSVEP[j][1];
     elementsSSVEP[j][1] = temp;
@@ -627,13 +642,12 @@ function shuffleSSVEP(protocol) {
   for (var i = 0; i < elementsSSVEP.length; i++) {
     protocol[elementsSSVEP[i][0]] = elementsSSVEP[i][1];
   }
-
 }
 
-const leftRight = () => Math.random() < 0.5 ? 'left' : 'right'; 
+const leftRight = () => (Math.random() < 0.5 ? 'left' : 'right');
 
-setInterval(function () {
+setInterval(() => {
     const direction = leftRight()
     io.sockets.emit('game command', direction);
-    console.log(direction); 
-} , 1000) ;
+    console.log(direction);
+}, 1000);
