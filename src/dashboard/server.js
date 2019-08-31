@@ -631,6 +631,7 @@ function shuffleSSVEP(protocol) {
 const leftRight = () => Math.random() < 0.5 ? 'left' : 'right'; 
 
 setInterval(function () {
-    io.sockets.emit('game command', leftRight());
-    console.log(leftRight()); 
-} , 2000) ;
+    const direction = leftRight()
+    io.sockets.emit('game command', direction);
+    console.log(direction); 
+} , 1000) ;

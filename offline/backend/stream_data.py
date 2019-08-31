@@ -3,6 +3,8 @@ import requests
 import numpy as np
 import pandas as pd 
 
+from openbci import cyton as bci
+
 data_list = []
 
 dashboard_url = "localhost:3000/data_stream"
@@ -18,7 +20,18 @@ def print_raw(sample):
         json_data = mean_df.to_json(orient='split')
         requests.post(dashboard_url, data=json_data)
 
+def printData(sample):
+    # os.system('clear')
+    print("----------------")
+    print("%f" % (sample.id))
+    print(sample.channel_data)
+    print(sample.aux_data)
+    print("----------------")
 
-board = OpenBCICyton(port=None, daisy=False)
-
-instance = board.start_stream(print_raw)
+# board = OpenBCICyton(port=None, daisy=False)
+if __name__== "__main__": 
+    port = "/dev/tty.usbserial-DM00QA1Z"
+    board = bci.OpenBCICyton(port=port, scaled_output=False, log=True)
+    print("Board Instantiated")
+#     instance = board.start_stream(print_raw)
+    board.start_stream(printData)
