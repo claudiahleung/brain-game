@@ -3,7 +3,7 @@ import requests
 import numpy as np
 import pandas as pd 
 
-from openbci import cyton as bci
+# from openbci import cyton as bci
 
 data_list = []
 
@@ -15,23 +15,26 @@ def print_raw(sample):
     X_ready = [raw_data[0], raw_data[1], raw_data[6], raw_data[7]]
     data_list.append(X_ready)
     
-    if len(data_list) == 50:
+    if len(data_list) == 100:
         mean_df = pd.DataFrame(data=data_list, columns=['Channel 1', 'Channel 2', 'Channel 7', 'Channel 8'])
-        json_data = mean_df.to_json(orient='split')
-        requests.post(dashboard_url, data=json_data)
+        print(mean_df)
+        # json_data = mean_df.to_json(orient='split')
+        # requests.post(dashboard_url, data=json_data)
 
 def printData(sample):
     # os.system('clear')
     print("----------------")
     print("%f" % (sample.id))
-    print(sample.channel_data)
-    print(sample.aux_data)
+    if sample != None:
+        print(sample.channels_data)
+        print(sample.aux_data)
     print("----------------")
 
 # board = OpenBCICyton(port=None, daisy=False)
 if __name__== "__main__": 
     port = "/dev/tty.usbserial-DM00QA1Z"
-    board = bci.OpenBCICyton(port=port, scaled_output=False, log=True)
+    board = OpenBCICyton(port=port, daisy=False)
     print("Board Instantiated")
 #     instance = board.start_stream(print_raw)
+#     board.start_stream(print_raw)
     board.start_stream(printData)
