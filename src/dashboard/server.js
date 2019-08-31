@@ -111,8 +111,10 @@ app_express.get('/game', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/game.html'));
 });
 
-//establish new route (/stream_data) to get 50 rows of raw data from python streamer
-//app_express.get()
+// establish new route (/stream_data) to get 50 rows of raw data from python streamer
+app_express.get('/data_stream', (req, res) => {
+  // res.sendFile(path.join(__dirname + '/offline/backend/stream_data.py'));
+})
 
 app_express.get('/settings', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/settings.html'));

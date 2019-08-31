@@ -3,9 +3,11 @@ import requests
 import numpy as np
 import pandas as pd 
 
+from PredictAction import rf_predict, knn_predict
+
 data_list = []
 
-dashboard_url = "localhost:3000/data_stream"
+dashboard_url = "http://localhost:3000/data_stream"
 
 def print_raw(sample):
     global mean_df
@@ -15,9 +17,13 @@ def print_raw(sample):
     
     if len(data_list) >= 100:
         mean_df = pd.DataFrame(data=data_list, columns=['Channel 1', 'Channel 2', 'Channel 7', 'Channel 8'])
-        # print(mean_df)
-        json_data = mean_df.to_json(orient='split')
-        requests.post(dashboard_url, data=json_data)
+        print(mean_df)
+        decision = rf_predict(np.array(mean_df))
+        print('decision:', decision)
+        # json_data = mean_df.to_json(orient='split')
+        posted = requests.post(dashboard_url, data=decision)
+        print(posted.status_code)
+        # send decision to server.js 
         data_list.clear()
 
 def printData(sample):
